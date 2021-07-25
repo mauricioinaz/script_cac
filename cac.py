@@ -1,5 +1,5 @@
-from os import listdir, getcwd
-from os.path import isfile, join, abspath
+from os import listdir, getcwd, makedirs
+from os.path import isfile, join, abspath, exists
 from datetime import datetime
 import pandas as pd
 from constantes import COL_INFO, COL_SEMAFORO, ESTRUCTURA_INFO, ESTRUCTURA_SEMAFORO, SHEETS
@@ -17,6 +17,14 @@ def obtener_lista_xlsx():
     archivos_xlsx = [a for a in archivos if a.endswith('.xlsx') and not a.startswith('~')]
     return archivos_xlsx, directorio_archivos+'/'
 
+
+# Checa si existe el directorio Resultados y si no lo crea
+def obtener_directorio_resultados():
+    directorio_actual = abspath(getcwd())
+    directorio_resultados = directorio_actual + '/RESULTADOS'
+    if not exists(directorio_resultados):
+        makedirs(directorio_resultados)
+    return directorio_resultados
 
 # Recorre cada archivo y extae las celdas de INFO y SEMAFORO 
 # regresa un xlsx con los resultados
@@ -46,9 +54,9 @@ def analizar_xlsx(archivos, directorio_archivos, iteraciones):
     # print(resultados)
 
     # Guardar Archivo en Carpeta Resultados, usando resultados_fecha_hora como nombre
-    directorio_resultados = f'{directorio_archivos}../RESULTADOS/'
+    directorio_resultados = obtener_directorio_resultados()
     nombre_resultados = f'resultados_{datetime.now().strftime("%d-%m-%Y_%H%M%S")}.xlsx'
-    resultados.to_excel(directorio_resultados + nombre_resultados, sheet_name='resultados')
+    resultados.to_excel(directorio_resultados + '/' + nombre_resultados, sheet_name='resultados')
     print('')
     print(f'Se generó el archivo: {nombre_resultados}')
 
