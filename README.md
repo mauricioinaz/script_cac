@@ -16,6 +16,7 @@ Agregar los archivos a analizar en la carpeta de `/ ARCHIVOS`
 Ejecutar el script:
 
 ```
+source env/bin/activate
 python cac.py
 ```
 
@@ -23,7 +24,7 @@ python cac.py
 
 ### CONFIGURAR
 
-Si la estructura de las encuestas cambia, se debe actualizar las variables de  `constantes.py` . 
+Si la estructura de las encuestas cambia, se debe actualizar las variables de  `configuracion.py` . 
 
 ```python
 # Indicar las columnas en las que se encuentran los datos
