@@ -2,7 +2,7 @@ from os import listdir, getcwd, makedirs
 from os.path import isfile, join, abspath, exists
 from datetime import datetime
 import pandas as pd
-from constantes import COL_INFO, COL_SEMAFORO, ESTRUCTURA_INFO, ESTRUCTURA_SEMAFORO, SHEETS
+from configuracion import COL_INFO, COL_SEMAFORO, ESTRUCTURA_INFO, ESTRUCTURA_SEMAFORO, SHEETS
 
 INICIO_RENGLON = 0
 CANTIDAD_RENGLONES = 1
