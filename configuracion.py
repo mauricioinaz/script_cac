@@ -41,5 +41,6 @@ ESTRUCTURA_SEMAFORO = {
 #            [Inicial, Interm, Final]
 DESFASES = [0, 177, 354]
 
-# Nombres de las pestañas
+# Nombres de las pestañas que se extraerán
+# CAC1, CAC2, CAC3...
 SHEETS_NAME = 'CAC'

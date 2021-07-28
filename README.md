@@ -33,23 +33,31 @@ COL_SEMAFORO = 7
 
 # Indicar el número de renglón a leer de la COL_INFO
 ESTRUCTURA_INFO = {
-    'NombreCac': 0,
+    'Nombre_CAC': 0,
     'Fecha_Aplicacion': 1,
-    'Nombre_Tecnico': 2
+    'Nombre_Tecnico': 2,
+    'ID_CAC': 3,
+    'Ruta': 4,
+    'Territorio': 5
 }
 
 # En un arreglo indicar renglón de inicio de cada seccion, y la cantidad de renglones 
 # a anlizar de la COL_SEMAFORO
 ESTRUCTURA_SEMAFORO = {
-    # 'Nombre': [InicioRenglon, CantidadDeRenglones]
-    'IdentValores': [13, 3],
-    'ConsecucionObjetivos': [22, 2],
-    'IntegracionResolucion': [30, 6],
+#   'Nombre_de_la_Seccion': [InicioRenglon, #DeRenglones]
+    'Identidad_Valores_Compartidos': [17, 3],
+    'Consecucion_Eficiente_Objetivos': [26, 2],
     ...
 }
 
-# Los nombres de las pestañas
-SHEETS = ['Diagnostico Inicial', 'Diagnostico Intermedio', 'Diagnostico Final']
+# DESFASE PARA EXTRAER SECCIÓN
+#            [Inicial, Interm, Final]
+DESFASES = [0, 177, 354]
+
+# Nombres de las pestañas que se extraerán
+# CAC1, CAC2, CAC3...
+SHEETS_NAME = 'CAC'
+
 ```
 
 ### POR HACER:
