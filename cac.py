@@ -2,10 +2,12 @@ from os import listdir, getcwd, makedirs
 from os.path import isfile, join, abspath, exists
 from datetime import datetime
 import pandas as pd
-from configuracion import COL_INFO, COL_SEMAFORO, ESTRUCTURA_INFO, ESTRUCTURA_SEMAFORO, SHEETS
+from configuracion import COL_INFO, COL_SEMAFORO, ESTRUCTURA_INFO, \
+                          ESTRUCTURA_SEMAFORO, SHEETS_NAME, DESFASES
 
 INICIO_RENGLON = 0
 CANTIDAD_RENGLONES = 1
+ITERACION = ['Inicial', 'Intermedia', 'Final']
 
 # regresa un arreglo con todos los nombres de los archivos dentro de la carpeta /ARCHIVOS 
 # Y regresa la ubicacion de la carpeta
@@ -28,29 +30,37 @@ def obtener_directorio_resultados():
 
 # Recorre cada archivo y extae las celdas de INFO y SEMAFORO 
 # regresa un xlsx con los resultados
-def analizar_xlsx(archivos, directorio_archivos, iteraciones):
+def analizar_xlsx(archivos, directorio_archivos, iteracion):
     resultados = pd.DataFrame()
+    # Recorrer cada archivo
     for archivo in archivos:
         path = directorio_archivos + archivo
+
         # Recorrer cada Sheet del Excel
-        for sh in SHEETS[:iteraciones]:
-            datos_leidos = pd.read_excel(path, header=None, usecols=[COL_INFO,COL_SEMAFORO], sheet_name=sh)
-            # TODO: Revisar que se extrajeron las columnas o regresar error!
-            renglon_nuevo = {}
-            # Extraer info
+        for sheet_numb in range(1,9):
+            sheet = SHEETS_NAME + str(sheet_numb)
+            datos_leidos = pd.read_excel(path, header=None, usecols=[COL_INFO,COL_SEMAFORO], sheet_name=sheet)
+            # TODO: Revisar que se extrajeron las columnas bien o regresar error!
+            
+            # Extraer info general
+            info_general = {}
             for col, renglon in ESTRUCTURA_INFO.items():
-                renglon_nuevo[col] = datos_leidos.at[renglon, COL_INFO]
-            renglon_nuevo['Nombre_Archivo'] = archivo
-            renglon_nuevo['Iteracion'] = sh
-            # Extraer datos
-            for col, info_seccion in ESTRUCTURA_SEMAFORO.items():
-                inicio_renglon = info_seccion[INICIO_RENGLON]
-                for sum in range(info_seccion[CANTIDAD_RENGLONES]):
-                    renglon = inicio_renglon + sum
-                    nombre_renglon = col+str(sum)
-                    renglon_nuevo[nombre_renglon] = datos_leidos.at[renglon, COL_SEMAFORO]
-            # Agregar nuevo Renglón
-            resultados = resultados.append(renglon_nuevo, ignore_index=True)
+                info_general[col] = datos_leidos.at[renglon, COL_INFO]
+            info_general['Nombre_Archivo'] = archivo
+
+            # Extraer para INICIAL, INTERMEDIA y FINAL agregando desfase de columnas
+            for iter, desfase in enumerate(DESFASES[:iteracion]):
+                renglon_nuevo = info_general
+                renglon_nuevo['Iteracion'] = ITERACION[iter]
+                # Extraer datos de semáforo de sección
+                for col, info_seccion in ESTRUCTURA_SEMAFORO.items():
+                    inicio_renglon = info_seccion[INICIO_RENGLON]
+                    for sum in range(info_seccion[CANTIDAD_RENGLONES]):
+                        renglon = inicio_renglon + sum
+                        nombre_renglon = col+str(sum)
+                        renglon_nuevo[nombre_renglon] = datos_leidos.at[renglon + desfase, COL_SEMAFORO]
+                # Agregar nuevo Renglón a tabla resultados
+                resultados = resultados.append(renglon_nuevo, ignore_index=True)
     # print(resultados)
 
     # Guardar Archivo en Carpeta Resultados, usando resultados_fecha_hora como nombre
@@ -67,15 +77,15 @@ def main():
         print('No se encontraron xlsx en la carpeta de ARCHIVOS.')
         return None
 
-    iteraciones = 0
+    iteracion = 0
     print('Qué periodos quieres analizar?')
-    while iteraciones not in [1,2,3]:
+    while iteracion not in [1,2,3]:
         print('1 (Inicial) / 2 (Inicial e Intermedio) / 3 (Inicial, Intermedio y Final)')
-        iteraciones = int(input('Elige un Número: '))
-        print(iteraciones)
+        iteracion = int(input('Elige un Número: '))
+        print(iteracion)
 
     print(f'Analizando {len(archivos)} archivos')
-    analizar_xlsx(archivos, directorio_archivos, iteraciones)
+    analizar_xlsx(archivos, directorio_archivos, iteracion)
 
 if __name__ == "__main__":
     main()
