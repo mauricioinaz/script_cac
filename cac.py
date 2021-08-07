@@ -68,13 +68,13 @@ def analizar_xlsx(iteracion):
                 # Agregar nuevo Renglón a tabla resultados
                 resultados = resultados.append(renglon_nuevo, ignore_index=True)
     # print(resultados)
-    return resultados
-    # # Guardar Archivo en Carpeta Resultados, usando resultados_fecha_hora como nombre
-    # directorio_resultados = obtener_directorio_resultados()
-    # nombre_resultados = f'resultados_{datetime.now().strftime("%d-%m-%Y_%H%M%S")}.xlsx'
-    # resultados.to_excel(directorio_resultados + '/' + nombre_resultados, sheet_name='resultados')
-    # print('')
-    # print(f'Se generó el archivo: {nombre_resultados}')
+    # return resultados
+    # Guardar Archivo en Carpeta Resultados, usando resultados_fecha_hora como nombre
+    directorio_resultados = obtener_directorio_resultados()
+    nombre_resultados = f'resultados_{datetime.now().strftime("%d-%m-%Y_%H%M%S")}.xlsx'
+    resultados.to_excel(directorio_resultados + '/' + nombre_resultados, sheet_name='resultados')
+    print('')
+    print(f'Se generó el archivo: {nombre_resultados}')
 
 
 def main():
