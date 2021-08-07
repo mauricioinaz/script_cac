@@ -40,6 +40,7 @@ ESTRUCTURA_SEMAFORO = {
 # DESFASE PARA EXTRAER SECCIÓN
 #            [Inicial, Interm, Final]
 DESFASES = [0, 177, 354]
+ITERACIONES = ['INICIAL', 'INTERMEDIO', 'FINAL']
 
 # Nombres de las pestañas que se extraerán
 # CAC1, CAC2, CAC3...
