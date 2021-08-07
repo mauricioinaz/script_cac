@@ -9,14 +9,14 @@ INICIO_RENGLON = 0
 CANTIDAD_RENGLONES = 1
 ITERACION = ['Inicial', 'Intermedia', 'Final']
 
-# regresa un arreglo con todos los nombres de los archivos dentro de la carpeta /ARCHIVOS 
+# regresa un arreglo con todos los nombres de los archivos dentro de la carpeta /ARCHIVOS
 # Y regresa la ubicacion de la carpeta
 def obtener_lista_xlsx():
     directorio_actual = abspath(getcwd())
     directorio_archivos = directorio_actual + '/ARCHIVOS'
     archivos = [f for f in listdir(directorio_archivos) if isfile(join(directorio_archivos, f))]
     # filtra solo .xlsx e ignora los abiertos
-    archivos_xlsx = [a for a in archivos if a.endswith('.xlsx') and not a.startswith('~')]
+    archivos_xlsx = [a for a in archivos if a.endswith('.xlsb') and not a.startswith('~')]
     return archivos_xlsx, directorio_archivos+'/'
 
 
@@ -28,7 +28,7 @@ def obtener_directorio_resultados():
         makedirs(directorio_resultados)
     return directorio_resultados
 
-# Recorre cada archivo y extae las celdas de INFO y SEMAFORO 
+# Recorre cada archivo y extae las celdas de INFO y SEMAFORO
 # regresa un xlsx con los resultados
 def analizar_xlsx(archivos, directorio_archivos, iteracion):
     resultados = pd.DataFrame()
@@ -41,7 +41,7 @@ def analizar_xlsx(archivos, directorio_archivos, iteracion):
             sheet = SHEETS_NAME + str(sheet_numb)
             datos_leidos = pd.read_excel(path, header=None, usecols=[COL_INFO,COL_SEMAFORO], sheet_name=sheet)
             # TODO: Revisar que se extrajeron las columnas bien o regresar error!
-            
+
             # Extraer info general
             info_general = {}
             for col, renglon in ESTRUCTURA_INFO.items():
