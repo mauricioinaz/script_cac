@@ -10,7 +10,7 @@ INICIO_RENGLON = 0
 CANTIDAD_RENGLONES = 1
 ITERACION = ['Inicial', 'Intermedia', 'Final']
 
-# regresa un arreglo con todos los nombres de los archivos dentro de la carpeta /ARCHIVOS 
+# regresa un arreglo con todos los nombres de los archivos dentro de la carpeta /ARCHIVOS
 # Y regresa la ubicacion de la carpeta
 def obtener_lista_xlsx(carpeta):
     directorio_actual = abspath(getcwd())
@@ -29,7 +29,7 @@ def obtener_directorio_resultados():
         makedirs(directorio_resultados)
     return directorio_resultados
 
-# Recorre cada archivo y extae las celdas de INFO y SEMAFORO 
+# Recorre cada archivo y extae las celdas de INFO y SEMAFORO
 # regresa un xlsx con los resultados
 def analizar_xlsx(iteracion):
     resultados = pd.DataFrame()
