@@ -10,13 +10,13 @@ COL_SEMAFORO = 7
 ESTRUCTURA_INFO = {
     'Nombre_CAC': 0,
     'Fecha_Aplicacion': 1,
-    'Nombre_Tecnico': 2,
+    'ID_Tecnico': 2,
     'ID_CAC': 3,
-    'Ruta': 4,
+    'ID_Facilitador': 4,
     'Territorio': 5
 }
 
-# En un arreglo indicar renglón de inicio de cada seccion, y la cantidad de renglones 
+# En un arreglo indicar renglón de inicio de cada seccion, y la cantidad de renglones
 # a anlizar de la COL_SEMAFORO
 ESTRUCTURA_SEMAFORO = {
 #   'Nombre_de_la_Seccion': [InicioRenglon, #DeRenglones]
