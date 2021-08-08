@@ -3,8 +3,9 @@
 Para instalar script crear un ambiente virtual de Python e instalar dependencias:
 
 ```
-python -m venv env 
+python -m venv env
 pip install -r requirements.txt
+pip install tqdm
 ```
 
 
@@ -24,7 +25,7 @@ python cac.py
 
 ### CONFIGURAR
 
-Si la estructura de las encuestas cambia, se debe actualizar las variables de  `configuracion.py` . 
+Si la estructura de las encuestas cambia, se debe actualizar las variables de  `configuracion.py` .
 
 ```python
 # Indicar las columnas en las que se encuentran los datos
@@ -41,7 +42,7 @@ ESTRUCTURA_INFO = {
     'Territorio': 5
 }
 
-# En un arreglo indicar renglón de inicio de cada seccion, y la cantidad de renglones 
+# En un arreglo indicar renglón de inicio de cada seccion, y la cantidad de renglones
 # a anlizar de la COL_SEMAFORO
 ESTRUCTURA_SEMAFORO = {
 #   'Nombre_de_la_Seccion': [InicioRenglon, #DeRenglones]

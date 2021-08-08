@@ -1,10 +1,12 @@
+from tqdm import tqdm
+from time import sleep
 from os import listdir, getcwd, makedirs
 from os.path import isfile, join, abspath, exists
 from datetime import datetime
 import pandas as pd
 from configuracion import COL_INFO, COL_SEMAFORO, ESTRUCTURA_INFO, \
                           ESTRUCTURA_SEMAFORO, SHEETS_NAME, DESFASES, \
-                          ITERACIONES 
+                          ITERACIONES
 
 INICIO_RENGLON = 0
 CANTIDAD_RENGLONES = 1
@@ -38,8 +40,8 @@ def analizar_xlsx(iteracion):
 
     for carpeta in ITERACIONES[:iteracion]:
         archivos, directorio_archivos = obtener_lista_xlsx('/'+carpeta)
-
-        for archivo in archivos:
+        print(f'Analizando {len(archivos)} archivos en la carpeta: {carpeta}')
+        for archivo in tqdm(archivos):
             path = directorio_archivos + archivo
 
             # Recorrer cada Sheet del Excel del 1 al 8
@@ -47,7 +49,7 @@ def analizar_xlsx(iteracion):
                 sheet = SHEETS_NAME + str(sheet_numb)
                 datos_leidos = pd.read_excel(path, header=None, usecols=[COL_INFO,COL_SEMAFORO], sheet_name=sheet)
                 # TODO: Revisar que se extrajeron las columnas bien o regresar error!
-                
+
                 # Extraer info general
                 renglon_nuevo = {}
                 for col, renglon in ESTRUCTURA_INFO.items():
