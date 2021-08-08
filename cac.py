@@ -97,7 +97,9 @@ def main():
     resultados = analizar_xlsx(iteracion)
     directorio_resultados = obtener_directorio_resultados()
     facilitadores = resultados['ID_Facilitador'].unique()
-    for facilitador in facilitadores:
+    print('')
+    print (f'Generando Reportes para {len(facilitadores)} facilitadores')
+    for facilitador in tqdm(facilitadores):
         if not isnan(facilitador):
             diagnosticos_facilitador = resultados.loc[resultados['ID_Facilitador'] == facilitador]
             generar_reporte(diagnosticos_facilitador, directorio_resultados)

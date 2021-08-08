@@ -1,5 +1,7 @@
 from fpdf import FPDF
 import pandas as pd
+import matplotlib.pyplot as plt
+from pylab import savefig
 from configuracion import ESTRUCTURA_SEMAFORO
 
 CANTIDAD_RENGLONES = 1
@@ -18,10 +20,34 @@ def ubicar_rango(promedios):
     mayor = 1
     indicadores_por_rango = []
     for menor in RANGOS:
-        indicadores_por_rango.append(len([p for p in promedios if menor < p < mayor]))
+        indicadores_por_rango.append(len([p for p in promedios if menor < p <= mayor]))
         mayor = menor
+    if sum(indicadores_por_rango) == 0:
+        return 4
     return indicadores_por_rango.index(max(indicadores_por_rango))
 
+
+def generar_pay(promedios, directorio_resultados):
+    # Pie chart, where the slices will be ordered and plotted counter-clockwise:
+    labels = '(<66%)', '(66%-33%)', '(<33%)'
+
+    sizes = [promedios['rojo'].mean(), promedios['amarillo'].mean(), promedios['verde'].mean()]
+    
+    explode = [0.1, 0.1, 0.1] 
+    # explode largest
+    # explode[sizes.index(max(sizes))] = 0.1
+    # explode = tuple(explode)    
+    #         red         yellow     green 
+    colors = ['#fb0707', '#effb07', '#07fb26']
+
+    fig1, ax1 = plt.subplots()
+    ax1.pie(sizes, explode=explode, labels=labels, colors=colors, autopct='%1.1f%%',
+            shadow=True, startangle=90)
+    ax1.axis('equal')  # Equal aspect ratio ensures that pie is drawn as a circle.
+
+    ubicacion_imagen = directorio_resultados + '/grafica.png'
+    savefig(ubicacion_imagen)
+    return ubicacion_imagen
 
 def promedios_por_indicador(diagnostico):
     promedios_indicador = pd.DataFrame()
@@ -34,11 +60,13 @@ def promedios_por_indicador(diagnostico):
             promedios.append(promedio)
         promedios_indicador = promedios_indicador.append({
             'indicador' : indicador,
-            'rojo' : (len([True for pr in promedios if pr < 0.33]) / len(promedios) ) * 100,
-            'amarillo' : (len([True for pr in promedios if (0.33 < pr < .66)]) / len(promedios) ) * 100,
+            'rojo' : (len([True for pr in promedios if pr <= 0.33]) / len(promedios) ) * 100,
+            'amarillo' : (len([True for pr in promedios if (0.33 < pr <= .66)]) / len(promedios) ) * 100,
             'verde' : (len([True for pr in promedios if pr > .66]) / len(promedios) ) * 100,
-            'rango': ubicar_rango(promedios)
+            'rango': ubicar_rango(promedios),
+            # 'promedios': promedios
         }, ignore_index=True)
+        # print(promedios)
     return promedios_indicador
 
 
@@ -98,6 +126,17 @@ def generar_reporte(diagnostico, directorio_resultados):
 
     pdf.add_page()
     pdf.set_font('Arial', 'B', 24)
+
+    pdf.cell(60)
+    # TÍTULO
+    pdf.cell(75, 10, f"Gráfica de Promedios Totales", 0, 2, 'C')
+    pdf.cell(90, 10, " ", 0, 2, 'C')
+    pdf.cell(-80)
+    ubicacion_imagen = generar_pay(promedios, directorio_resultados)
+    pdf.image(ubicacion_imagen, x = None, y = None, w = 0, h = 0, type = '', link = '')
+
+    pdf.add_page()
+    pdf.set_font('Arial', 'B', 24)
     # Título PÁGINA 2
     pdf.cell(60)
     pdf.cell(60, 8, 'Análisis de Indicadores', 0, 2, 'C')
@@ -105,18 +144,18 @@ def generar_reporte(diagnostico, directorio_resultados):
     pdf.cell(-60)
 
     TITULOS_RANGOS = [
-        'Más fuertes (mayoría en 75% o más)',
-        'Buenos (mayoría entre 66% o 75%)',
-        'de Atención (mayoría entre 33% o 66%)',
-        'Bajos (mayoría entre 25% o 33%)',
-        'Graves (mayoría entre 0% o 25%)',
+        'Más fuertes (mayoría en 75% o más)',    # 0
+        'Buenos (mayoría entre 66% o 75%)',      # 1
+        'de Atención (mayoría entre 33% o 66%)', # 2
+        'Bajos (mayoría entre 25% o 33%)',       # 3 
+        'Graves (mayoría entre 0% o 25%)',       # 4
         ]
     
     for rango, rango_texto in enumerate(TITULOS_RANGOS):
         pdf.set_font('Arial', 'B', 10)
         pdf.cell(70, 10, rango_texto, 1, 0, 'L')
         en_rango = promedios.loc[promedios['rango'] == rango]
-        indicadores_en_rango = ', '.join(en_rango['indicador'].tolist()) 
+        indicadores_en_rango = ', '.join(en_rango['indicador'].tolist())  
         pdf.set_font('Arial', '', 10)
         pdf.multi_cell(100, 10, indicadores_en_rango, 1, 2, 'C')
         # pdf.cell(-0)
