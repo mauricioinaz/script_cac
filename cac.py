@@ -1,16 +1,16 @@
 from tqdm import tqdm
-from time import sleep
 from os import listdir, getcwd, makedirs
 from os.path import isfile, join, abspath, exists
 from datetime import datetime
 import pandas as pd
+from numpy import isnan
+from reportes import generar_reporte
 from configuracion import COL_INFO, COL_SEMAFORO, ESTRUCTURA_INFO, \
-                          ESTRUCTURA_SEMAFORO, SHEETS_NAME, DESFASES, \
-                          ITERACIONES
+                          ESTRUCTURA_SEMAFORO, SHEETS_NAME, ITERACIONES \
+                           
 
 INICIO_RENGLON = 0
 CANTIDAD_RENGLONES = 1
-ITERACION = ['Inicial', 'Intermedia', 'Final']
 
 # regresa un arreglo con todos los nombres de los archivos dentro de la carpeta /ARCHIVOS
 # Y regresa la ubicacion de la carpeta
@@ -35,11 +35,12 @@ def obtener_directorio_resultados():
 # regresa un xlsx con los resultados
 def analizar_xlsx(iteracion):
     resultados = pd.DataFrame()
-    # Recorrer cada archivo
 
-
+    # Recorrer cada carpeta Inicia / Intermedia / Final
     for carpeta in ITERACIONES[:iteracion]:
+        # TODO Mensaje si no existen las carpetas
         archivos, directorio_archivos = obtener_lista_xlsx('/'+carpeta)
+
         print(f'Analizando {len(archivos)} archivos en la carpeta: {carpeta}')
         for archivo in tqdm(archivos):
             path = directorio_archivos + archivo
@@ -49,7 +50,7 @@ def analizar_xlsx(iteracion):
                 sheet = SHEETS_NAME + str(sheet_numb)
                 datos_leidos = pd.read_excel(path, header=None, usecols=[COL_INFO,COL_SEMAFORO], sheet_name=sheet)
                 # TODO: Revisar que se extrajeron las columnas bien o regresar error!
-
+                
                 # Extraer info general
                 renglon_nuevo = {}
                 for col, renglon in ESTRUCTURA_INFO.items():
@@ -70,13 +71,13 @@ def analizar_xlsx(iteracion):
                 # Agregar nuevo Renglón a tabla resultados
                 resultados = resultados.append(renglon_nuevo, ignore_index=True)
     # print(resultados)
-    # return resultados
     # Guardar Archivo en Carpeta Resultados, usando resultados_fecha_hora como nombre
     directorio_resultados = obtener_directorio_resultados()
     nombre_resultados = f'resultados_{datetime.now().strftime("%d-%m-%Y_%H%M%S")}.xlsx'
     resultados.to_excel(directorio_resultados + '/' + nombre_resultados, sheet_name='resultados')
     print('')
     print(f'Se generó el archivo: {nombre_resultados}')
+    return resultados
 
 
 def main():
@@ -93,7 +94,16 @@ def main():
         print(iteracion)
 
     # print(f'Analizando {len(archivos)} archivos')
-    analizar_xlsx(iteracion)
+    resultados = analizar_xlsx(iteracion)
+    directorio_resultados = obtener_directorio_resultados()
+    facilitadores = resultados['ID_Facilitador'].unique()
+    for facilitador in facilitadores:
+        if not isnan(facilitador):
+            diagnosticos_facilitador = resultados.loc[resultados['ID_Facilitador'] == facilitador]
+            generar_reporte(diagnosticos_facilitador, directorio_resultados)
+        else:
+            # TODO: Avisar que hay renglones sin ID!!
+            pass
 
 if __name__ == "__main__":
     main()

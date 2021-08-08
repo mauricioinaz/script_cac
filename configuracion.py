@@ -37,9 +37,7 @@ ESTRUCTURA_SEMAFORO = {
     'Salud_Comunitaria': [161, 3]
 }
 
-# DESFASE PARA EXTRAER SECCIÓN
-#            [Inicial, Interm, Final]
-DESFASES = [0, 177, 354]
+# Nombres de carpetas de las iteraciones
 ITERACIONES = ['INICIAL', 'INTERMEDIO', 'FINAL']
 
 # Nombres de las pestañas que se extraerán
