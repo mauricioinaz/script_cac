@@ -4,6 +4,25 @@ from configuracion import ESTRUCTURA_SEMAFORO
 
 CANTIDAD_RENGLONES = 1
 
+# Función en qué rango está la mayoría de los promedios
+# posibles resutlados:
+# 0:  más fuertes:	Indicadores más veces con 75% o más	
+# 1:  buenos:	Indicadores más veces entre 66% y 75%	
+# 2:  de atención:	Indicadores más veces entre 33% y 66%	
+# 3:  bajos:	Indicadores más veces entre 25% y 33%	
+# 4:  graves:	Indicadores más veces entre 0% y 25%
+# límites maximos de rango
+#         0     1    2    3   4
+RANGOS = [.75, .66, .33, .25, 0]
+def ubicar_rango(promedios):
+    mayor = 1
+    indicadores_por_rango = []
+    for menor in RANGOS:
+        indicadores_por_rango.append(len([p for p in promedios if menor < p < mayor]))
+        mayor = menor
+    return indicadores_por_rango.index(max(indicadores_por_rango))
+
+
 def promedios_por_indicador(diagnostico):
     promedios_indicador = pd.DataFrame()
     for indicador, info_seccion in ESTRUCTURA_SEMAFORO.items():
@@ -17,10 +36,11 @@ def promedios_por_indicador(diagnostico):
             'indicador' : indicador,
             'rojo' : (len([True for pr in promedios if pr < 0.33]) / len(promedios) ) * 100,
             'amarillo' : (len([True for pr in promedios if (0.33 < pr < .66)]) / len(promedios) ) * 100,
-            'verde' : (len([True for pr in promedios if pr > .66]) / len(promedios) ) * 100
+            'verde' : (len([True for pr in promedios if pr > .66]) / len(promedios) ) * 100,
+            'rango': ubicar_rango(promedios)
         }, ignore_index=True)
-        
     return promedios_indicador
+
 
 def generar_reporte(diagnostico, directorio_resultados):
     pdf = FPDF()
@@ -77,7 +97,29 @@ def generar_reporte(diagnostico, directorio_resultados):
         pdf.cell(-140)
 
     pdf.add_page()
-    pdf.cell(60, 8, 'Análisis de Indicadores', 1, 0, 'C')
+    pdf.set_font('Arial', 'B', 24)
+    # Título PÁGINA 2
+    pdf.cell(60)
+    pdf.cell(60, 8, 'Análisis de Indicadores', 0, 2, 'C')
+    pdf.cell(90, 10, " ", 0, 2, 'C')
+    pdf.cell(-60)
+
+    TITULOS_RANGOS = [
+        'Más fuertes (mayoría en 75% o más)',
+        'Buenos (mayoría entre 66% o 75%)',
+        'de Atención (mayoría entre 33% o 66%)',
+        'Bajos (mayoría entre 25% o 33%)',
+        'Graves (mayoría entre 0% o 25%)',
+        ]
+    
+    for rango, rango_texto in enumerate(TITULOS_RANGOS):
+        pdf.set_font('Arial', 'B', 10)
+        pdf.cell(70, 10, rango_texto, 1, 0, 'L')
+        en_rango = promedios.loc[promedios['rango'] == rango]
+        indicadores_en_rango = ', '.join(en_rango['indicador'].tolist()) 
+        pdf.set_font('Arial', '', 10)
+        pdf.multi_cell(100, 10, indicadores_en_rango, 1, 2, 'C')
+        # pdf.cell(-0)
 
     pdf.output(directorio_resultados + f'/informe_{id_facilitador}.pdf', 'F')
 
