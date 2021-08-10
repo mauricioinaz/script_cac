@@ -8,10 +8,10 @@ CANTIDAD_RENGLONES = 1
 
 # Función en qué rango está la mayoría de los promedios
 # posibles resutlados:
-# 0:  más fuertes:	Indicadores más veces con 75% o más	
-# 1:  buenos:	Indicadores más veces entre 66% y 75%	
-# 2:  de atención:	Indicadores más veces entre 33% y 66%	
-# 3:  bajos:	Indicadores más veces entre 25% y 33%	
+# 0:  más fuertes:	Indicadores más veces con 75% o más
+# 1:  buenos:	Indicadores más veces entre 66% y 75%
+# 2:  de atención:	Indicadores más veces entre 33% y 66%
+# 3:  bajos:	Indicadores más veces entre 25% y 33%
 # 4:  graves:	Indicadores más veces entre 0% y 25%
 # límites maximos de rango
 #         0     1    2    3   4
@@ -32,12 +32,12 @@ def generar_pay(promedios, directorio_resultados):
     labels = '(<66%)', '(66%-33%)', '(<33%)'
 
     sizes = [promedios['rojo'].mean(), promedios['amarillo'].mean(), promedios['verde'].mean()]
-    
-    explode = [0.1, 0.1, 0.1] 
+
+    explode = [0.1, 0.1, 0.1]
     # explode largest
     # explode[sizes.index(max(sizes))] = 0.1
-    # explode = tuple(explode)    
-    #         red         yellow     green 
+    # explode = tuple(explode)
+    #         red         yellow     green
     colors = ['#fb0707', '#effb07', '#07fb26']
 
     fig1, ax1 = plt.subplots()
@@ -67,7 +67,8 @@ def promedios_por_indicador(diagnostico):
             # 'promedios': promedios
         }, ignore_index=True)
         # print(promedios)
-    return promedios_indicador
+        promedios_redondeados = promedios_indicador.round(decimals=2)
+    return promedios_redondeados
 
 
 def generar_reporte(diagnostico, directorio_resultados):
@@ -81,7 +82,7 @@ def generar_reporte(diagnostico, directorio_resultados):
     pdf.cell(75, 10, f"Informe de Facilitador #{id_facilitador}", 0, 2, 'C')
     pdf.cell(90, 10, " ", 0, 2, 'C')
     pdf.cell(-40)
-    
+
     #
     # INFO DEL FACILITADOR
     #
@@ -99,12 +100,12 @@ def generar_reporte(diagnostico, directorio_resultados):
     iteracion = diagnostico['Iteracion'].iloc[0]
     pdf.cell(40, 10, iteracion, 1, 2, 'C')
     pdf.cell(-50)
-    # Gradiente social:	Rojo: si los indicadores en verde son menores que 33% y los rojos mayores que 33% | Verde: si los indicadores en rojo son menores que 25% y los indicadores verdes mayores que 40% | Amarillo: else			
+    # Gradiente social:	Rojo: si los indicadores en verde son menores que 33% y los rojos mayores que 33% | Verde: si los indicadores en rojo son menores que 25% y los indicadores verdes mayores que 40% | Amarillo: else
     pdf.cell(50, 10, 'Gradiente Social:', 1, 0, 'R')
     pdf.cell(40, 10, '...GRADIENTE...', 1, 2, 'C')
     pdf.cell(90, 10, " ", 0, 2, 'C')
     pdf.cell(-60)
-    
+
 
     # ENCABEZADOS INDICADORES
     pdf.set_font('Arial', 'B', 10)
@@ -113,7 +114,7 @@ def generar_reporte(diagnostico, directorio_resultados):
     pdf.cell(30, 8, 'Amarillo', 1, 0, 'C')
     pdf.cell(30, 8, 'Verde', 1, 2, 'C')
     pdf.cell(-140)
-    
+
     # TABLA DE DISTRIBUCIÓN DE PROMEDIOS POR INDICADOR
     pdf.set_font('Arial', '', 10)
     promedios = promedios_por_indicador(diagnostico)
@@ -147,18 +148,17 @@ def generar_reporte(diagnostico, directorio_resultados):
         'Más fuertes (mayoría en 75% o más)',    # 0
         'Buenos (mayoría entre 66% o 75%)',      # 1
         'de Atención (mayoría entre 33% o 66%)', # 2
-        'Bajos (mayoría entre 25% o 33%)',       # 3 
+        'Bajos (mayoría entre 25% o 33%)',       # 3
         'Graves (mayoría entre 0% o 25%)',       # 4
         ]
-    
+
     for rango, rango_texto in enumerate(TITULOS_RANGOS):
         pdf.set_font('Arial', 'B', 10)
         pdf.cell(70, 10, rango_texto, 1, 0, 'L')
         en_rango = promedios.loc[promedios['rango'] == rango]
-        indicadores_en_rango = ', '.join(en_rango['indicador'].tolist())  
+        indicadores_en_rango = ', '.join(en_rango['indicador'].tolist())
         pdf.set_font('Arial', '', 10)
         pdf.multi_cell(100, 10, indicadores_en_rango, 1, 2, 'C')
         # pdf.cell(-0)
 
     pdf.output(directorio_resultados + f'/informe_{id_facilitador}.pdf', 'F')
-
