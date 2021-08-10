@@ -1,3 +1,5 @@
 env/
 RESULTADOS/*
+ARCHIVOS/*
+IMAGENES/*
 __pycache__/
