@@ -26,10 +26,9 @@ def ubicar_rango(promedios):
         return 4
     return indicadores_por_rango.index(max(indicadores_por_rango))
 
-
 def generar_pay(promedios, directorio_resultados):
     # Pie chart, where the slices will be ordered and plotted counter-clockwise:
-    labels = '(<66%)', '(66%-33%)', '(<33%)'
+    labels = '(-33%)', '(66%-33%)', '(+66%)'
 
     sizes = [promedios['rojo'].mean(), promedios['amarillo'].mean(), promedios['verde'].mean()]
 
@@ -70,9 +69,13 @@ def promedios_por_indicador(diagnostico):
         promedios_redondeados = promedios_indicador.round(decimals=2)
     return promedios_redondeados
 
+class PDF(FPDF):
+    def header(self):
+        # Logo
+        self.image('D:\Horizontes\Sembrando Vida\Instrumento de diagnóstico\Git\IMAGENES\Logo_PSV.png', 10, 8, 33)
 
 def generar_reporte(diagnostico, directorio_resultados):
-    pdf = FPDF()
+    pdf = PDF()
     pdf.add_page()
     pdf.set_font('Arial', 'B', 24)
 
@@ -80,7 +83,7 @@ def generar_reporte(diagnostico, directorio_resultados):
     id_facilitador = diagnostico['ID_Facilitador'].iloc[0]
     # TÍTULO
     pdf.cell(75, 10, f"Informe de Facilitador #{id_facilitador}", 0, 2, 'C')
-    pdf.cell(90, 10, " ", 0, 2, 'C')
+    pdf.cell(90, 15, " ", 0, 2, 'C')
     pdf.cell(-40)
 
     #
