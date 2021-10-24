@@ -3,3 +3,4 @@ RESULTADOS/*
 ARCHIVOS/*
 IMAGENES/*
 __pycache__/
+*.log

@@ -1,3 +1,5 @@
+import time
+import logging
 from tqdm import tqdm
 from os import listdir, getcwd, makedirs
 from os.path import isfile, join, abspath, exists
@@ -34,6 +36,7 @@ def obtener_directorio_resultados():
 # Recorre cada archivo y extae las celdas de INFO y SEMAFORO
 # regresa un xlsx con los resultados
 def analizar_xlsx(iteracion):
+    logging.basicConfig(filename=f'errores_{time.strftime("%Y-%m-%d-%H:%M.%S")}.log', filemode='w', format='%(levelname)s - %(message)s')
     resultados = pd.DataFrame()
 
     # Recorrer cada carpeta Inicia / Intermedia / Final
@@ -48,8 +51,14 @@ def analizar_xlsx(iteracion):
             # Recorrer cada Sheet del Excel del 1 al 8
             for sheet_numb in range(1,9):
                 sheet = SHEETS_NAME + str(sheet_numb)
-                datos_leidos = pd.read_excel(path, header=None, usecols=[COL_INFO,COL_SEMAFORO], sheet_name=sheet)
-                # TODO: Revisar que se extrajeron las columnas bien o regresar error!
+                # intentar leer cada pestaña del excel
+                try:
+                    datos_leidos = pd.read_excel(path, header=None, usecols=[COL_INFO,COL_SEMAFORO], sheet_name=sheet)
+                # Anotar los casos donde no existe la pestaña
+                except ValueError:
+                    error_message = f'El archivo "{archivo}" no tiene "{sheet}"'
+                    logging.error(error_message)
+                    continue
                 
                 # Extraer info general
                 renglon_nuevo = {}
@@ -104,7 +113,7 @@ def main():
             diagnosticos_facilitador = resultados.loc[resultados['ID_Facilitador'] == facilitador]
             generar_reporte(diagnosticos_facilitador, directorio_resultados)
         else:
-            # TODO: Avisar que hay renglones sin ID!!
+            logging.error(f'No se pudo obtener el ID de un facilitador')
             pass
 
 if __name__ == "__main__":
