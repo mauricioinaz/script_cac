@@ -46,7 +46,7 @@ def analizar_xlsx(iteracion):
             path = directorio_archivos + archivo
 
             # Recorrer cada Sheet del Excel del 1 al 8
-            for sheet_numb in range(1,9):
+            for sheet_numb in range(1,10):
                 sheet = SHEETS_NAME + str(sheet_numb)
                 datos_leidos = pd.read_excel(path, header=None, usecols=[COL_INFO,COL_SEMAFORO], sheet_name=sheet)
                 # TODO: Revisar que se extrajeron las columnas bien o regresar error!

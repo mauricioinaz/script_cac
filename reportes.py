@@ -72,7 +72,7 @@ def promedios_por_indicador(diagnostico):
 class PDF(FPDF):
     def header(self):
         # Logo
-        self.image('D:\Horizontes\Sembrando Vida\Instrumento de diagnóstico\Git\IMAGENES\Logo_PSV.png', 10, 8, 33)
+        self.image('D:\Horizontes\Sembrando Vida\Instrumento de diagnóstico\Git\IMAGENES\Fondo.jpg', 0, 0, 210, 297)
 
 def generar_reporte(diagnostico, directorio_resultados):
     pdf = PDF()
