@@ -4,3 +4,4 @@ ARCHIVOS/*
 IMAGENES/*
 __pycache__/
 *.log
+.venv/

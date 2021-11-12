@@ -21,7 +21,7 @@ def obtener_lista_xlsx(carpeta):
     directorio_archivos = directorio_actual + '/ARCHIVOS' + carpeta
     archivos = [f for f in listdir(directorio_archivos) if isfile(join(directorio_archivos, f))]
     # filtra solo .xlsx e ignora los abiertos
-    archivos_xlsx = [a for a in archivos if a.endswith('.xlsb') and not a.startswith('~')]
+    archivos_xlsx = [a for a in archivos if (a.endswith('.xlsb') or a.endswith('.xls') or a.endswith('.xlsx')) and not a.startswith('~')]
     return archivos_xlsx, directorio_archivos+'/'
 
 
@@ -109,12 +109,14 @@ def main():
     print('')
     print (f'Generando Reportes para {len(facilitadores)} facilitadores')
     for facilitador in tqdm(facilitadores):
-        if not isnan(facilitador):
-            diagnosticos_facilitador = resultados.loc[resultados['ID_Facilitador'] == facilitador]
-            generar_reporte(diagnosticos_facilitador, directorio_resultados)
-        else:
-            logging.error(f'No se pudo obtener el ID de un facilitador')
-            pass
-
+        try:
+            if not isnan(facilitador):
+                diagnosticos_facilitador = resultados.loc[resultados['ID_Facilitador'] == facilitador]
+                generar_reporte(diagnosticos_facilitador, directorio_resultados)
+            else:
+                logging.error(f'No se pudo obtener el ID de un facilitador')
+        except TypeError:
+             logging.error(f'Error de isnan')
+             print('printprueba')
 if __name__ == "__main__":
     main()
