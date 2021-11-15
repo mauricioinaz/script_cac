@@ -2,7 +2,7 @@ from fpdf import FPDF
 import pandas as pd
 import matplotlib.pyplot as plt
 from pylab import savefig
-from configuracion import ESTRUCTURA_SEMAFORO
+from configuracion import ESTRUCTURA_SEMAFORO, ESTRUCTURA_INFO
 
 CANTIDAD_RENGLONES = 1
 
@@ -72,7 +72,7 @@ def promedios_por_indicador(diagnostico):
 class PDF(FPDF):
     def header(self):
         # Logo
-        self.image('D:\Horizontes\Sembrando Vida\Instrumento de diagnóstico\Git\IMAGENES\Fondo.jpg', 0, 0, 210, 297)
+        self.image('D:\Horizontes\Sembrando Vida\Instrumento de diagnóstico\Git\IMAGENES\Fondo.jpeg', 0, 0, 210, 297)
 
 def generar_reporte(diagnostico, directorio_resultados):
     pdf = PDF()
@@ -92,11 +92,14 @@ def generar_reporte(diagnostico, directorio_resultados):
     pdf.set_font('Arial', 'B', 14)
     # Territorio
     pdf.cell(50, 10, 'Territorio', 1, 0, 'R')
-    pdf.cell(40, 10, 'Pantano', 1, 2, 'C')
+    territorio = diagnostico['Territorio'].iloc[0]
+    pdf.cell(40, 10, territorio, 1, 2, 'C')
     pdf.cell(-50)
     # Año de aplicación:
     pdf.cell(50, 10, 'Año de aplicación:', 1, 0, 'R')
-    pdf.cell(40, 10, '...FECHA...', 1, 2, 'C')
+    fecha = diagnostico['Fecha_Aplicacion'].iloc[0]
+    print(diagnostico['Fecha_Aplicacion'])
+    pdf.cell(40, 10, fecha, 1, 2, 'C')
     pdf.cell(-50)
     # Iteración:
     pdf.cell(50, 10, 'Iteración', 1, 0, 'R')

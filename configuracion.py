@@ -14,6 +14,7 @@ ESTRUCTURA_INFO = {
     'ID_CAC': 3,
     'ID_Facilitador': 4,
     'Territorio': 5
+#    'Correo_Tecnico_Social': 6
 }
 
 # En un arreglo indicar renglón de inicio de cada seccion, y la cantidad de renglones
