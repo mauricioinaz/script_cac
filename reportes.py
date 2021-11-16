@@ -1,8 +1,10 @@
 from fpdf import FPDF
 import pandas as pd
+import xlrd
 import matplotlib.pyplot as plt
 from pylab import savefig
 from configuracion import ESTRUCTURA_SEMAFORO, ESTRUCTURA_INFO
+
 
 CANTIDAD_RENGLONES = 1
 
@@ -72,7 +74,10 @@ def promedios_por_indicador(diagnostico):
 class PDF(FPDF):
     def header(self):
         # Logo
+        
+        # TODO: Falta poner variable de directorio en vez de fija:
         self.image('D:\Horizontes\Sembrando Vida\Instrumento de diagnóstico\Git\IMAGENES\Fondo.jpeg', 0, 0, 210, 297)
+        # self.image('/Users/mauricioinaz/WEBinaz/script_cac/IMAGENES/Fondo.jpeg', 0, 0, 210, 297)
 
 def generar_reporte(diagnostico, directorio_resultados):
     pdf = PDF()
@@ -95,11 +100,13 @@ def generar_reporte(diagnostico, directorio_resultados):
     territorio = diagnostico['Territorio'].iloc[0]
     pdf.cell(40, 10, territorio, 1, 2, 'C')
     pdf.cell(-50)
-    # Año de aplicación:
+    # # Año de aplicación:
     pdf.cell(50, 10, 'Año de aplicación:', 1, 0, 'R')
-    fecha = diagnostico['Fecha_Aplicacion'].iloc[0]
-    print(diagnostico['Fecha_Aplicacion'])
-    pdf.cell(40, 10, fecha, 1, 2, 'C')
+    fecha_excel = diagnostico['Fecha_Aplicacion'].iloc[0]
+    # convertir formato fecha excel a texto
+    fecha = xlrd.xldate_as_datetime(fecha_excel, 0)
+    anio = str(fecha.year)
+    pdf.cell(40, 10, anio, 1, 2, 'C')
     pdf.cell(-50)
     # Iteración:
     pdf.cell(50, 10, 'Iteración', 1, 0, 'R')

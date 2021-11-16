@@ -107,16 +107,20 @@ def main():
     directorio_resultados = obtener_directorio_resultados()
     facilitadores = resultados['ID_Facilitador'].unique()
     print('')
+    # print(facilitadores)
     print (f'Generando Reportes para {len(facilitadores)} facilitadores')
     for facilitador in tqdm(facilitadores):
         try:
             if not isnan(facilitador):
+                # print(f'generando reporte {i}')
                 diagnosticos_facilitador = resultados.loc[resultados['ID_Facilitador'] == facilitador]
                 generar_reporte(diagnosticos_facilitador, directorio_resultados)
             else:
-                logging.error(f'No se pudo obtener el ID de un facilitador')
+                logging.error(f'No se pudo obtener el ID de un facilitador por estar vacío - {facilitador}')
+                # print('No se pudo obtener el ID de un facilitador')
         except TypeError:
-             logging.error(f'Error de isnan')
-             print('printprueba')
+            logging.error(f'Numero invalido del facilitador - {facilitador} - isNAN')
+            #  logging.error(f'Error de isnan')
+            #  print('try except isNan error')
 if __name__ == "__main__":
     main()
