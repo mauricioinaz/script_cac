@@ -37,6 +37,7 @@ def obtener_directorio_resultados():
 # regresa un xlsx con los resultados
 def analizar_xlsx(iteracion):
     logging.basicConfig(filename=f'errores_{time.strftime("%Y-%m-%d-%H:%M.%S")}.log', filemode='w', format='%(levelname)s - %(message)s')
+    logging.error(f'--- ERRORES DE LECTURA DE ARCHIVOS --- ')
     resultados = pd.DataFrame()
 
     # Recorrer cada carpeta Inicia / Intermedia / Final
@@ -60,6 +61,10 @@ def analizar_xlsx(iteracion):
                     logging.error(error_message)
                     continue
                 
+                # ignorar si el nombre de CAC está vacío
+                if datos_leidos.at[ESTRUCTURA_INFO['Nombre_CAC'], COL_INFO] == '':
+                    continue
+
                 # Extraer info general
                 renglon_nuevo = {}
                 for col, renglon in ESTRUCTURA_INFO.items():
@@ -109,6 +114,7 @@ def main():
     print('')
     # print(facilitadores)
     print (f'Generando Reportes para {len(facilitadores)} facilitadores')
+    logging.error(f'--- ERRORES DE GENERACIÓN DE REPORTES --- ')
     for facilitador in tqdm(facilitadores):
         try:
             if not isnan(facilitador):
@@ -116,10 +122,10 @@ def main():
                 diagnosticos_facilitador = resultados.loc[resultados['ID_Facilitador'] == facilitador]
                 generar_reporte(diagnosticos_facilitador, directorio_resultados)
             else:
-                logging.error(f'No se pudo obtener el ID de un facilitador por estar vacío - {facilitador}')
+                logging.error(f'INFORME NO GENERADO - No se pudo obtener el ID de un facilitador por estar vacío - {facilitador}')
                 # print('No se pudo obtener el ID de un facilitador')
         except TypeError:
-            logging.error(f'Numero invalido del facilitador - {facilitador} - isNAN')
+            logging.error(f'INFORME NO GENERADO - Numero invalido del facilitador - {facilitador} - isNAN')
             #  logging.error(f'Error de isnan')
             #  print('try except isNan error')
 if __name__ == "__main__":
