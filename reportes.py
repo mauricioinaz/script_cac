@@ -4,6 +4,7 @@ import xlrd
 import matplotlib.pyplot as plt
 from pylab import savefig
 from configuracion import ESTRUCTURA_SEMAFORO, ESTRUCTURA_INFO
+import logging
 
 
 CANTIDAD_RENGLONES = 1
@@ -29,6 +30,8 @@ def ubicar_rango(promedios):
     return indicadores_por_rango.index(max(indicadores_por_rango))
 
 def generar_pay(promedios, directorio_resultados):
+    # Cerrar figuras anteriores para mejor manejo de memoria
+    plt.close('all')
     # Pie chart, where the slices will be ordered and plotted counter-clockwise:
     labels = '(-33%)', '(66%-33%)', '(+66%)'
 
@@ -76,46 +79,53 @@ class PDF(FPDF):
         # Logo
         
         # TODO: Falta poner variable de directorio en vez de fija:
-        self.image('D:\Horizontes\Sembrando Vida\Instrumento de diagnóstico\Git\IMAGENES\Fondo.jpeg', 0, 0, 210, 297)
-        # self.image('/Users/mauricioinaz/WEBinaz/script_cac/IMAGENES/Fondo.jpeg', 0, 0, 210, 297)
+        # self.image('D:\Horizontes\Sembrando Vida\Instrumento de diagnóstico\Git\IMAGENES\Fondo.jpeg', 0, 0, 210, 297)
+        self.image('/Users/mauricioinaz/WEBinaz/script_cac/IMAGENES/Fondo.jpeg', 0, 0, 210, 297)
 
 def generar_reporte(diagnostico, directorio_resultados):
     pdf = PDF()
     pdf.add_page()
     pdf.set_font('Arial', 'B', 24)
 
-    pdf.cell(60)
+    pdf.cell(50)
     id_facilitador = diagnostico['ID_Facilitador'].iloc[0]
     # TÍTULO
-    pdf.cell(75, 10, f"Informe de Facilitador #{id_facilitador}", 0, 2, 'C')
+    pdf.cell(90, 3, " ", 0, 2, 'C')
+    pdf.cell(75, 10, f"Informe de Facilitador", 0, 2, 'C')
+    pdf.cell(75, 10, f"#{id_facilitador}", 0, 2, 'C')
+    pdf.cell(-30)
     pdf.cell(90, 15, " ", 0, 2, 'C')
-    pdf.cell(-40)
 
     #
     # INFO DEL FACILITADOR
     #
     pdf.set_font('Arial', 'B', 14)
     # Territorio
-    pdf.cell(50, 10, 'Territorio', 1, 0, 'R')
+    pdf.cell(50, 10, 'Territorio:', 1, 0, 'R')
     territorio = diagnostico['Territorio'].iloc[0]
-    pdf.cell(40, 10, territorio, 1, 2, 'C')
+    pdf.cell(70, 10, territorio, 1, 2, 'C')
     pdf.cell(-50)
     # # Año de aplicación:
     pdf.cell(50, 10, 'Año de aplicación:', 1, 0, 'R')
     fecha_excel = diagnostico['Fecha_Aplicacion'].iloc[0]
     # convertir formato fecha excel a texto
-    fecha = xlrd.xldate_as_datetime(fecha_excel, 0)
-    anio = str(fecha.year)
-    pdf.cell(40, 10, anio, 1, 2, 'C')
+    if type(fecha_excel) is int:
+        fecha = xlrd.xldate_as_datetime(fecha_excel, 0)
+        anio = str(fecha.year)
+    else:
+        anio = 'fecha no disponible'
+        logging.error(f'Fecha no disponible en {id_facilitador} - {fecha_excel}')
+        
+    pdf.cell(70, 10, anio, 1, 2, 'C')
     pdf.cell(-50)
     # Iteración:
-    pdf.cell(50, 10, 'Iteración', 1, 0, 'R')
+    pdf.cell(50, 10, 'Iteración:', 1, 0, 'R')
     iteracion = diagnostico['Iteracion'].iloc[0]
-    pdf.cell(40, 10, iteracion, 1, 2, 'C')
+    pdf.cell(70, 10, iteracion, 1, 2, 'C')
     pdf.cell(-50)
     # Gradiente social:	Rojo: si los indicadores en verde son menores que 33% y los rojos mayores que 33% | Verde: si los indicadores en rojo son menores que 25% y los indicadores verdes mayores que 40% | Amarillo: else
     pdf.cell(50, 10, 'Gradiente Social:', 1, 0, 'R')
-    pdf.cell(40, 10, '...GRADIENTE...', 1, 2, 'C')
+    pdf.cell(70, 10, '...GRADIENTE...', 1, 2, 'C')
     pdf.cell(90, 10, " ", 0, 2, 'C')
     pdf.cell(-60)
 
@@ -141,9 +151,11 @@ def generar_reporte(diagnostico, directorio_resultados):
     pdf.add_page()
     pdf.set_font('Arial', 'B', 24)
 
-    pdf.cell(60)
+    pdf.cell(50)
     # TÍTULO
-    pdf.cell(75, 10, f"Gráfica de Promedios Totales", 0, 2, 'C')
+    pdf.cell(90, 3, " ", 0, 2, 'C')
+    pdf.cell(75, 10, f"Gráfica de Promedios", 0, 2, 'C')
+    pdf.cell(75, 10, f"Totales", 0, 2, 'C')
     pdf.cell(90, 10, " ", 0, 2, 'C')
     pdf.cell(-80)
     ubicacion_imagen = generar_pay(promedios, directorio_resultados)
@@ -152,10 +164,12 @@ def generar_reporte(diagnostico, directorio_resultados):
     pdf.add_page()
     pdf.set_font('Arial', 'B', 24)
     # Título PÁGINA 2
-    pdf.cell(60)
+    pdf.cell(57)
+    pdf.cell(90, 7, " ", 0, 2, 'C')
     pdf.cell(60, 8, 'Análisis de Indicadores', 0, 2, 'C')
     pdf.cell(90, 10, " ", 0, 2, 'C')
-    pdf.cell(-60)
+    pdf.cell(90, 10, " ", 0, 2, 'C')
+    pdf.cell(-57)
 
     TITULOS_RANGOS = [
         'Más fuertes (mayoría en 75% o más)',    # 0
