@@ -37,7 +37,6 @@ def obtener_directorio_resultados():
 # Recorre cada archivo y extae las celdas de INFO y SEMAFORO
 # regresa un xlsx con los resultados
 def analizar_xlsx(iteracion, directorio_resultados):
-    logging.basicConfig(filename=f'LOGS/errores_{time.strftime("%Y-%m-%d-%H:%M.%S")}.log', filemode='w', format='%(levelname)s - %(message)s', level=logging.INFO)
     log_title('ERRORES DE LECTURA DE ARCHIVOS')
     resultados = pd.DataFrame()
 
@@ -51,26 +50,27 @@ def analizar_xlsx(iteracion, directorio_resultados):
             path = directorio_archivos + archivo
 
             xls = pd.ExcelFile(path)
-            # Recorrer todas las Sheets del excel
+            # Recorrer todas las Pestañas de cada excel
             for sheet_name in xls.sheet_names:
                 # Ignorar pestaña GRAFICAS
                 if sheet_name == "GRAFICAS":
                     continue
 
-                # intentar leer cada pestaña del excel
+                # Leer datos de la pestaña
                 datos_leidos = xls.parse(header=None, usecols=[COL_INFO,COL_SEMAFORO], sheet_name=sheet_name)
                 
-                # No registrar si Nombre CAC no existe
+                # No registrar renglón de datos si Nombre_CAC no existe
                 try:
                     Nombre_CAC_vacio = pd.isnull(datos_leidos[COL_INFO].iloc[ESTRUCTURA_INFO['Nombre_CAC']])
                     if Nombre_CAC_vacio:
                         logging.warning(f'Pestaña "{sheet_name}" parece estar vaciá en archivo "{archivo}"')
                         continue
+                # Caso cuando hoja de excel está mal?
                 except KeyError:
                     logging.error(f'KEYERROR - Pestaña "{sheet_name}" parece estar vaciá en archivo "{archivo}"')
                     continue
 
-                # Extraer info general
+                # Extraer Info general
                 renglon_nuevo = {}
                 for col, renglon in ESTRUCTURA_INFO.items():
                     renglon_nuevo[col] = datos_leidos.at[renglon, COL_INFO]
@@ -81,6 +81,7 @@ def analizar_xlsx(iteracion, directorio_resultados):
                 # for iter, desfase in enumerate(DESFASES[:iteracion]):
                 #     renglon_nuevo = info_general
                 renglon_nuevo['Iteracion'] = carpeta
+
                 # Extraer datos de semáforo de sección
                 for col, info_seccion in ESTRUCTURA_SEMAFORO.items():
                     inicio_renglon = info_seccion[INICIO_RENGLON]
@@ -88,15 +89,20 @@ def analizar_xlsx(iteracion, directorio_resultados):
                         renglon = inicio_renglon + sum
                         nombre_renglon = col+str(sum)
                         renglon_nuevo[nombre_renglon] = datos_leidos.at[renglon, COL_SEMAFORO]
-                # Agregar nuevo Renglón a tabla resultados
+
+                # Agregar renglón de datos a tabla resultados
                 resultados = resultados.append(renglon_nuevo, ignore_index=True)
+
     # Guardar Archivo en Carpeta Resultados, usando resultados_fecha_hora como nombre
     nombre_resultados = f'resultados_{datetime.now().strftime("%d-%m-%Y_%H%M%S")}.xlsx'
     resultados.to_excel(directorio_resultados + '/' + nombre_resultados, sheet_name='resultados')
+
     print('')
     print(f'Se generó el archivo: {nombre_resultados}')
+
     return resultados
 
+# Para formato del LOG
 def log_title(title):
     logging.info(f'')
     logging.info(f'')
@@ -105,6 +111,7 @@ def log_title(title):
     logging.info(f'')
 
 def main():
+    # Solicitar iteraciones a Usuario
     iteracion = 0
     print('Qué periodos quieres analizar?')
     while iteracion not in [1,2,3]:
@@ -112,9 +119,16 @@ def main():
         iteracion = int(input('Elige un Número: '))
         print(iteracion)
 
+    # Configurar archivo de errores
+    logging.basicConfig(filename=f'LOGS/errores_{time.strftime("%Y-%m-%d-%H:%M.%S")}.log', 
+                        filemode='w', 
+                        format='%(levelname)s - %(message)s', 
+                        level=logging.INFO)
+
     directorio_resultados = obtener_directorio_resultados()
     resultados = analizar_xlsx(iteracion, directorio_resultados)
     
+    # Obtener listado de facilitadores y generar reporte para cada uno
     facilitadores = resultados['ID_Facilitador'].unique()
     print('')
     print (f'Generando Reportes para {len(facilitadores)} facilitadores')

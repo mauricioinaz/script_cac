@@ -76,10 +76,7 @@ def promedios_por_indicador(diagnostico):
 
 class PDF(FPDF):
     def header(self):
-        # Logo
-        
-        # TODO: Falta poner variable de directorio en vez de fija:
-        # self.image('D:\Horizontes\Sembrando Vida\Instrumento de diagnóstico\Git\IMAGENES\Fondo.jpeg', 0, 0, 210, 297)
+        # Importar hoja con Membrete
         self.image(DIRECTORIO_ACTUAL + '/IMAGENES/Fondo.jpeg', 0, 0, 210, 297)
 
 def generar_reporte(diagnostico, directorio_resultados):
