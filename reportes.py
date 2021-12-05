@@ -114,7 +114,8 @@ def generar_reporte(diagnostico, directorio_resultados):
         anio = str(fecha.year)
     else:
         anio = 'fecha no disponible'
-        logging.error(f'Fecha no disponible en {id_facilitador} - {fecha_excel}')
+        f'{fecha_excel} '
+        logging.warning(f'Fecha " {fecha_excel}" no válida - en pestaña "{diagnostico["Nombre_Pestania"].iloc[0]}" "{diagnostico["Nombre_Archivo"].iloc[0]}" ')
         
     pdf.cell(70, 10, anio, 1, 2, 'C')
     pdf.cell(-50)
