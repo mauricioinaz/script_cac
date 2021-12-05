@@ -36,8 +36,8 @@ def obtener_directorio_resultados():
 # Recorre cada archivo y extae las celdas de INFO y SEMAFORO
 # regresa un xlsx con los resultados
 def analizar_xlsx(iteracion):
-    logging.basicConfig(filename=f'errores_{time.strftime("%Y-%m-%d-%H:%M.%S")}.log', filemode='w', format='%(levelname)s - %(message)s')
-    logging.error(f'--- ERRORES DE LECTURA DE ARCHIVOS --- ')
+    logging.basicConfig(filename=f'errores_{time.strftime("%Y-%m-%d-%H:%M.%S")}.log', filemode='w', format='%(levelname)s - %(message)s', level=logging.INFO)
+    logging.info(f'--- ERRORES DE LECTURA DE ARCHIVOS --- ')
     resultados = pd.DataFrame()
 
     # Recorrer cada carpeta Inicia / Intermedia / Final
@@ -49,20 +49,24 @@ def analizar_xlsx(iteracion):
         for archivo in tqdm(archivos):
             path = directorio_archivos + archivo
 
-            # Recorrer cada Sheet del Excel del 1 al 8
-            for sheet_numb in range(1,10):
-                sheet = SHEETS_NAME + str(sheet_numb)
-                # intentar leer cada pestaña del excel
-                try:
-                    datos_leidos = pd.read_excel(path, header=None, usecols=[COL_INFO,COL_SEMAFORO], sheet_name=sheet)
-                # Anotar los casos donde no existe la pestaña
-                except ValueError:
-                    error_message = f'El archivo "{archivo}" no tiene "{sheet}"'
-                    logging.error(error_message)
+            xls = pd.ExcelFile(path)
+            # Recorrer todas las Sheets del excel
+            for sheet_name in xls.sheet_names:
+                # Ignorar pestaña GRAFICAS
+                if sheet_name == "GRAFICAS":
                     continue
+
+                # intentar leer cada pestaña del excel
+                datos_leidos = xls.parse(header=None, usecols=[COL_INFO,COL_SEMAFORO], sheet_name=sheet_name)
                 
-                # ignorar si el nombre de CAC está vacío
-                if datos_leidos.at[ESTRUCTURA_INFO['Nombre_CAC'], COL_INFO] == '':
+                try:
+                    # No registrar si Nombre CAC no existe
+                    Nombre_CAC_vacio = pd.isnull(datos_leidos[COL_INFO].iloc[ESTRUCTURA_INFO['Nombre_CAC']])
+                    if Nombre_CAC_vacio:
+                        logging.warning(f'Pestaña "{sheet_name}" parece estar vaciá en archivo "{archivo}"')
+                        continue
+                except KeyError:
+                    logging.error(f'KEYERROR - Pestaña "{sheet_name}" parece estar vaciá en archivo "{archivo}"')
                     continue
 
                 # Extraer info general
@@ -70,6 +74,7 @@ def analizar_xlsx(iteracion):
                 for col, renglon in ESTRUCTURA_INFO.items():
                     renglon_nuevo[col] = datos_leidos.at[renglon, COL_INFO]
                 renglon_nuevo['Nombre_Archivo'] = archivo
+                renglon_nuevo['Nombre_Pestania'] = sheet_name
 
                 # Extraer para INICIAL, INTERMEDIA y FINAL agregando desfase de columnas
                 # for iter, desfase in enumerate(DESFASES[:iteracion]):
@@ -114,7 +119,8 @@ def main():
     print('')
     # print(facilitadores)
     print (f'Generando Reportes para {len(facilitadores)} facilitadores')
-    logging.error(f'--- ERRORES DE GENERACIÓN DE REPORTES --- ')
+    logging.info(f'--- ERRORES DE GENERACIÓN DE REPORTES --- ')
+    contador_de_errores = 0
     for facilitador in tqdm(facilitadores):
         try:
             if not isnan(facilitador):
@@ -123,10 +129,19 @@ def main():
                 generar_reporte(diagnosticos_facilitador, directorio_resultados)
             else:
                 logging.error(f'INFORME NO GENERADO - No se pudo obtener el ID de un facilitador por estar vacío - {facilitador}')
+                contador_de_errores += 1
                 # print('No se pudo obtener el ID de un facilitador')
         except TypeError:
             logging.error(f'INFORME NO GENERADO - Numero invalido del facilitador - {facilitador} - isNAN')
-            #  logging.error(f'Error de isnan')
+            contador_de_errores += 1
             #  print('try except isNan error')
+    print('')
+    reportes_generados = f'Se generaron exitosamente {len(facilitadores)-contador_de_errores} reportes de {len(facilitadores)} facilitadores'
+    reportes_errores = f'No se generaron {contador_de_errores} reportes por errores de ID'
+    print(reportes_generados)
+    print(reportes_errores)
+    logging.info(f'--- INFO GENERAL --- ')
+    logging.info(reportes_generados)
+    logging.info(reportes_errores)
 if __name__ == "__main__":
     main()
