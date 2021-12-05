@@ -3,7 +3,7 @@ import pandas as pd
 import xlrd
 import matplotlib.pyplot as plt
 from pylab import savefig
-from configuracion import ESTRUCTURA_SEMAFORO, ESTRUCTURA_INFO
+from configuracion import ESTRUCTURA_SEMAFORO, DIRECTORIO_ACTUAL
 import logging
 
 
@@ -80,7 +80,7 @@ class PDF(FPDF):
         
         # TODO: Falta poner variable de directorio en vez de fija:
         # self.image('D:\Horizontes\Sembrando Vida\Instrumento de diagnóstico\Git\IMAGENES\Fondo.jpeg', 0, 0, 210, 297)
-        self.image('/Users/mauricioinaz/WEBinaz/script_cac/IMAGENES/Fondo.jpeg', 0, 0, 210, 297)
+        self.image(DIRECTORIO_ACTUAL + '/IMAGENES/Fondo.jpeg', 0, 0, 210, 297)
 
 def generar_reporte(diagnostico, directorio_resultados):
     pdf = PDF()

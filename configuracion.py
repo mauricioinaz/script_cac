@@ -1,3 +1,5 @@
+from os import getcwd
+from os.path import abspath
 #
 # INFO PARA CONFIGURAR RENGLONES Y COLUMNAS A LEER
 #
@@ -44,3 +46,6 @@ ITERACIONES = ['INICIAL', 'INTERMEDIO', 'FINAL']
 # Nombres de las pestañas que se extraerán
 # CAC1, CAC2, CAC3...
 SHEETS_NAME = 'CAC'
+
+# UBICACIÓN DIRECTORIO
+DIRECTORIO_ACTUAL = abspath(getcwd())
