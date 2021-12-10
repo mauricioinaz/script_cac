@@ -143,7 +143,8 @@ def main():
                 logging.error(f'INFORME NO GENERADO - No se pudo obtener el ID de un facilitador por estar vacío - {facilitador}')
                 contador_de_errores += 1
         except TypeError:
-            logging.error(f'INFORME NO GENERADO - Numero invalido del facilitador - {facilitador} - isNAN')
+            archivos = resultados.loc[resultados['ID_Facilitador'] == facilitador]["Nombre_Archivo"].unique()
+            logging.error(f'INFORME NO GENERADO - Numero invalido del facilitador - {facilitador} - isNAN - en archivos {archivos}')
             contador_de_errores += 1
     
     # Registrar INFO FINAL
