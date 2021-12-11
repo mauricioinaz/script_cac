@@ -90,6 +90,32 @@ def promedios_por_indicador(diagnostico):
         promedios_redondeados = promedios_indicador.round(decimals=2)
     return promedios_redondeados
 
+# Rojo: 
+#   si del total de indicadores en verde son menores que 25%, 
+#   los indicadores amarillos menos de 33% 
+#   los rojos mayores que 40% 
+# Verde: 
+#   si los indicadores en rojo son menores que 25%, 
+#   los indicadores amarillos menos de 40% 
+#   los indicadores verdes mayores que 40% 
+# Amarillo: else
+def gradiente_social(semaforos):
+    print(semaforos)
+    print(semaforos.count('rojo') )
+    print(semaforos.count('amarillo') )
+    print(semaforos.count('verde') )
+    print(len(semaforos))
+    if (semaforos.count('verde') < len(semaforos)*0.25 and 
+            semaforos.count('amarillo') < len(semaforos)*0.33 and 
+            semaforos.count('rojo') > len(semaforos)*0.4):
+        return 'rojo'
+    elif (semaforos.count('rojo') < len(semaforos)*0.25 and
+            semaforos.count('amarillo') < len(semaforos)*0.4 and
+            semaforos.count('verde') > len(semaforos)*0.4):
+        return 'verde'
+    else:
+        return 'amarillo'
+
 class PDF(FPDF):
     def header(self):
         # Importar hoja con Membrete
@@ -137,9 +163,13 @@ def generar_reporte(diagnostico, directorio_resultados):
     iteracion = diagnostico['Iteracion'].iloc[0]
     pdf.cell(70, 10, iteracion, 1, 2, 'C')
     pdf.cell(-50)
-    # Gradiente social:	Rojo: si los indicadores en verde son menores que 33% y los rojos mayores que 33% | Verde: si los indicadores en rojo son menores que 25% y los indicadores verdes mayores que 40% | Amarillo: else
+
+    promedios = promedios_por_indicador(diagnostico)
+    color_gradiente = gradiente_social(promedios['semaforo'].to_list())
+
     pdf.cell(50, 10, 'Gradiente Social:', 1, 0, 'R')
-    pdf.cell(70, 10, '...GRADIENTE...', 1, 2, 'C')
+    pdf.set_fill_color(*COLORES[color_gradiente])
+    pdf.cell(70, 10, ' ', 1, 2, 'C', fill=True)
     pdf.cell(90, 10, " ", 0, 2, 'C')
     pdf.cell(-60)
 
@@ -155,7 +185,6 @@ def generar_reporte(diagnostico, directorio_resultados):
 
     # TABLA DE DISTRIBUCIÓN DE PROMEDIOS POR INDICADOR
     pdf.set_font('Arial', '', 10)
-    promedios = promedios_por_indicador(diagnostico)
     for _, row in promedios.iterrows():
         pdf.cell(80, 8, row["indicador"], 1, 0, 'L')
         pdf.cell(25, 8, f'{row["rojo"]}%', 1, 0, 'C')
