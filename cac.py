@@ -85,10 +85,13 @@ def analizar_xlsx(iteracion, directorio_resultados):
                 # Extraer datos de semáforo de sección
                 for col, info_seccion in ESTRUCTURA_SEMAFORO.items():
                     inicio_renglon = info_seccion[INICIO_RENGLON]
+                    suma = 0
                     for sum in range(info_seccion[CANTIDAD_RENGLONES]):
                         renglon = inicio_renglon + sum
                         nombre_renglon = col+str(sum)
                         renglon_nuevo[nombre_renglon] = datos_leidos.at[renglon, COL_SEMAFORO]
+                        suma += datos_leidos.at[renglon, COL_SEMAFORO]
+                    renglon_nuevo[col+'_Promedio'] = suma/info_seccion[CANTIDAD_RENGLONES]
 
                 # Agregar renglón de datos a tabla resultados
                 resultados = resultados.append(renglon_nuevo, ignore_index=True)
