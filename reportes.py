@@ -8,26 +8,55 @@ import logging
 
 
 CANTIDAD_RENGLONES = 1
+# límites maximos de rango
+RANGOS = [.75, .66, .33, .25, 0]
 
 # Función en qué rango está la mayoría de los promedios
-# posibles resutlados:
-# 0:  más fuertes:	Indicadores más veces con 75% o más
-# 1:  buenos:	Indicadores más veces entre 66% y 75%
-# 2:  de atención:	Indicadores más veces entre 33% y 66%
-# 3:  bajos:	Indicadores más veces entre 25% y 33%
-# 4:  graves:	Indicadores más veces entre 0% y 25%
-# límites maximos de rango
-#         0     1    2    3   4
-RANGOS = [.75, .66, .33, .25, 0]
 def ubicar_rango(promedios):
     mayor = 1
     indicadores_por_rango = []
+    total = len(promedios)
+    # Asignar rangos 
+    #  A   	  B 	  C       D	     E
+    #  0      1       2       3      4 
+    # >=75	66>75	33>66	25>33	<=25
     for menor in RANGOS:
         indicadores_por_rango.append(len([p for p in promedios if menor < p <= mayor]))
         mayor = menor
+
+    # Si no hay info es un Else?
     if sum(indicadores_por_rango) == 0:
+        return 2
+    # 0 Indicadores más fuertes:	
+    #   A+B>33% y A>16.5% y D+E<33% y E<16.5% y C<33%
+    if indicadores_por_rango[0] + indicadores_por_rango[1] > total*0.33 and \
+            indicadores_por_rango[0] > total*0.165 and \
+            indicadores_por_rango[3] + indicadores_por_rango[4] < total*0.33 and \
+            indicadores_por_rango[4] < total*0.165 and \
+            indicadores_por_rango[2] < total*0.33:
+        return 0
+    # 1 Indicadores buenos:	
+    #   A+B>33% y D+E<33% y C<33%
+    if indicadores_por_rango[0] + indicadores_por_rango[1] > total*0.33 and \
+            indicadores_por_rango[3] + indicadores_por_rango[4] < total*0.33 and \
+            indicadores_por_rango[2] < total*0.33:
+        return 1
+    # 3 Indicadores bajos:
+    #   D+E>33% y A+B<33% y C<33%
+    if indicadores_por_rango[3] + indicadores_por_rango[4] > total*0.33 and \
+            indicadores_por_rango[0] + indicadores_por_rango[1] < total*0.33 and \
+            indicadores_por_rango[2] < total*0.33:
+        return 3
+    # 4 Indicadores graves:
+    #   D+E>33% y E>16.5% y A+B<33% y C<33%
+    if indicadores_por_rango[3] + indicadores_por_rango[4] > total*0.33 and \
+            indicadores_por_rango[4] > total*0.165 and \
+            indicadores_por_rango[0] + indicadores_por_rango[1] < total*0.33 and \
+            indicadores_por_rango[2] < total*0.33:
         return 4
-    return indicadores_por_rango.index(max(indicadores_por_rango))
+    # 2 Indicadores de atención:	
+    #   Else
+    return 2
 
 def generar_pay(promedios, directorio_resultados):
     # Cerrar figuras anteriores para mejor manejo de memoria
@@ -38,13 +67,11 @@ def generar_pay(promedios, directorio_resultados):
     sizes = [promedios['rojo'].mean(), promedios['amarillo'].mean(), promedios['verde'].mean()]
 
     explode = [0.1, 0.1, 0.1]
-    # explode largest
-    # explode[sizes.index(max(sizes))] = 0.1
-    # explode = tuple(explode)
-    #         red         yellow     green
+
+    #            red          yellow       green
     colors = ['#fb0707', '#effb07', '#07fb26']
 
-    fig1, ax1 = plt.subplots()
+    _, ax1 = plt.subplots()
     ax1.pie(sizes, explode=explode, labels=labels, colors=colors, autopct='%1.1f%%',
             shadow=True, startangle=90)
     ax1.axis('equal')  # Equal aspect ratio ensures that pie is drawn as a circle.
@@ -53,9 +80,16 @@ def generar_pay(promedios, directorio_resultados):
     savefig(ubicacion_imagen)
     return ubicacion_imagen
 
-# Rojo: si los indicadores en verde son menores que 25%, los indicadores amarillos menos de 33% y los rojos mayores que 40%
-# Verde: si los indicadores en rojo son menores que 25%, los indicadores amarillos menos de 40% y los indicadores verdes mayores que 40% 
-# Amarillo: else
+# Rojo: 
+#   si los indicadores en verde son menores que 25%, 
+#   los indicadores amarillos menos de 33% 
+#   los rojos mayores que 40%
+# Verde: 
+#   si los indicadores en rojo son menores que 25%
+#   los indicadores amarillos menos de 40% 
+#   los indicadores verdes mayores que 40% 
+# Amarillo: 
+#   else
 def semaforo_por_indicador(rojo, amarillo, verde):
     if verde < 25 and amarillo < 33 and rojo > 40:
         return 'rojo'
@@ -100,11 +134,6 @@ def promedios_por_indicador(diagnostico):
 #   los indicadores verdes mayores que 40% 
 # Amarillo: else
 def gradiente_social(semaforos):
-    print(semaforos)
-    print(semaforos.count('rojo') )
-    print(semaforos.count('amarillo') )
-    print(semaforos.count('verde') )
-    print(len(semaforos))
     if (semaforos.count('verde') < len(semaforos)*0.25 and 
             semaforos.count('amarillo') < len(semaforos)*0.33 and 
             semaforos.count('rojo') > len(semaforos)*0.4):
@@ -218,11 +247,11 @@ def generar_reporte(diagnostico, directorio_resultados):
     pdf.cell(-57)
 
     TITULOS_RANGOS = [
-        'Más fuertes (mayoría en 75% o más)',    # 0
-        'Buenos (mayoría entre 66% o 75%)',      # 1
-        'de Atención (mayoría entre 33% o 66%)', # 2
-        'Bajos (mayoría entre 25% o 33%)',       # 3
-        'Graves (mayoría entre 0% o 25%)',       # 4
+        'Más fuertes',    # 0
+        'Buenos',         # 1
+        'de Atención',    # 2
+        'Bajos',          # 3
+        'Graves',         # 4
         ]
 
     for rango, rango_texto in enumerate(TITULOS_RANGOS):
