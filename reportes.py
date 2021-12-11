@@ -3,7 +3,7 @@ import pandas as pd
 import xlrd
 import matplotlib.pyplot as plt
 from pylab import savefig
-from configuracion import ESTRUCTURA_SEMAFORO, DIRECTORIO_ACTUAL
+from configuracion import ESTRUCTURA_SEMAFORO, DIRECTORIO_ACTUAL, COLORES
 import logging
 
 
@@ -53,6 +53,17 @@ def generar_pay(promedios, directorio_resultados):
     savefig(ubicacion_imagen)
     return ubicacion_imagen
 
+# Rojo: si los indicadores en verde son menores que 25%, los indicadores amarillos menos de 33% y los rojos mayores que 40%
+# Verde: si los indicadores en rojo son menores que 25%, los indicadores amarillos menos de 40% y los indicadores verdes mayores que 40% 
+# Amarillo: else
+def semaforo_por_indicador(rojo, amarillo, verde):
+    if verde < 25 and amarillo < 33 and rojo > 40:
+        return 'rojo'
+    elif rojo < 25 and amarillo < 40 and verde > 40:
+        return 'verde'
+    else:
+        return 'amarillo'
+
 def promedios_por_indicador(diagnostico):
     promedios_indicador = pd.DataFrame()
     for indicador, info_seccion in ESTRUCTURA_SEMAFORO.items():
@@ -62,11 +73,16 @@ def promedios_por_indicador(diagnostico):
             suma_preguntas = sum([row[indicador + str(n)] for n in range(preguntas_por_indicador)])
             promedio = suma_preguntas / preguntas_por_indicador
             promedios.append(promedio)
+        rojo = (len([True for pr in promedios if pr <= 0.33]) / len(promedios) ) * 100
+        amarillo = (len([True for pr in promedios if pr > 0.33 and pr <= 0.66]) / len(promedios) ) * 100
+        verde = (len([True for pr in promedios if pr > 0.66]) / len(promedios) ) * 100
+        semaforo = semaforo_por_indicador(rojo, amarillo, verde)
         promedios_indicador = promedios_indicador.append({
             'indicador' : indicador,
-            'rojo' : (len([True for pr in promedios if pr <= 0.33]) / len(promedios) ) * 100,
-            'amarillo' : (len([True for pr in promedios if (0.33 < pr <= .66)]) / len(promedios) ) * 100,
-            'verde' : (len([True for pr in promedios if pr > .66]) / len(promedios) ) * 100,
+            'rojo' : rojo,
+            'amarillo' : amarillo,
+            'verde' : verde,
+            'semaforo' : semaforo,
             'rango': ubicar_rango(promedios),
             # 'promedios': promedios
         }, ignore_index=True)
@@ -131,20 +147,23 @@ def generar_reporte(diagnostico, directorio_resultados):
     # ENCABEZADOS INDICADORES
     pdf.set_font('Arial', 'B', 10)
     pdf.cell(80, 8, 'Indicador', 1, 0, 'L')
-    pdf.cell(30, 8, 'Rojo', 1, 0, 'C')
-    pdf.cell(30, 8, 'Amarillo', 1, 0, 'C')
-    pdf.cell(30, 8, 'Verde', 1, 2, 'C')
-    pdf.cell(-140)
+    pdf.cell(25, 8, 'Rojo', 1, 0, 'C')
+    pdf.cell(25, 8, 'Amarillo', 1, 0, 'C')
+    pdf.cell(25, 8, 'Verde', 1, 0, 'C')
+    pdf.cell(25, 8, 'Semáforo', 1, 2, 'C')
+    pdf.cell(-155)
 
     # TABLA DE DISTRIBUCIÓN DE PROMEDIOS POR INDICADOR
     pdf.set_font('Arial', '', 10)
     promedios = promedios_por_indicador(diagnostico)
     for _, row in promedios.iterrows():
         pdf.cell(80, 8, row["indicador"], 1, 0, 'L')
-        pdf.cell(30, 8, f'{row["rojo"]}%', 1, 0, 'C')
-        pdf.cell(30, 8, f'{row["amarillo"]}%', 1, 0, 'C')
-        pdf.cell(30, 8, f'{row["verde"]}%', 1, 2, 'C')
-        pdf.cell(-140)
+        pdf.cell(25, 8, f'{row["rojo"]}%', 1, 0, 'C')
+        pdf.cell(25, 8, f'{row["amarillo"]}%', 1, 0, 'C')
+        pdf.cell(25, 8, f'{row["verde"]}%', 1, 0, 'C')
+        pdf.set_fill_color(*COLORES[row["semaforo"]])
+        pdf.cell(25, 8, ' ', 1, 2, 'C', fill=True)
+        pdf.cell(-155)
 
     pdf.add_page()
     pdf.set_font('Arial', 'B', 24)

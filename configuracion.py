@@ -19,6 +19,12 @@ ESTRUCTURA_INFO = {
 #    'Correo_Tecnico_Social': 6
 }
 
+COLORES = {
+    'rojo': [238, 9, 26],
+    'amarillo': [255, 255, 0], 
+    'verde': [0, 255, 0]
+}
+
 # En un arreglo indicar renglón de inicio de cada seccion, y la cantidad de renglones
 # a anlizar de la COL_SEMAFORO
 ESTRUCTURA_SEMAFORO = {
