@@ -30,7 +30,7 @@ def obtener_directorio_resultados():
     directorio_resultados = DIRECTORIO_ACTUAL + '/RESULTADOS'
     if not exists(directorio_resultados):
         makedirs(directorio_resultados)
-    resultados_actuales = directorio_resultados + '/' + f'RESULTADOS_{time.strftime("%Y-%m-%d-%H:%M.%S")}'
+    resultados_actuales = directorio_resultados + '/' + f'RESULTADOS_{time.strftime("%Y-%m-%d-%H%M%S")}'
     makedirs(resultados_actuales)
     return  resultados_actuales
 
