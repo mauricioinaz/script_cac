@@ -8,7 +8,9 @@ import pandas as pd
 from numpy import isnan
 from reportes import generar_reporte
 from configuracion import COL_INFO, COL_SEMAFORO, ESTRUCTURA_INFO, \
-                          ESTRUCTURA_SEMAFORO, ITERACIONES, DIRECTORIO_ACTUAL\
+                          ESTRUCTURA_SEMAFORO, ITERACIONES, DIRECTORIO_ACTUAL,\
+                          NOMBRE_XLSX_LISTADO_FACILITADORES, SHEET_LISTADO_FACILITADORES, \
+                          COLS_LISTADO_FACILITADORES
 
 
 INICIO_RENGLON = 0
@@ -33,6 +35,14 @@ def obtener_directorio_resultados():
     resultados_actuales = directorio_resultados + '/' + f'RESULTADOS_{time.strftime("%Y-%m-%d-%H%M%S")}'
     makedirs(resultados_actuales)
     return  resultados_actuales
+
+# Obtener el listado de facilitadores a partir de excel
+def obtener_listado_facilitadores():
+    path = DIRECTORIO_ACTUAL + '/ARCHIVOS'  '/' + NOMBRE_XLSX_LISTADO_FACILITADORES
+    xls = pd.ExcelFile(path)
+    listado_facilitadores = xls.parse(usecols=COLS_LISTADO_FACILITADORES, sheet_name=SHEET_LISTADO_FACILITADORES)
+    return listado_facilitadores
+
 
 # Recorre cada archivo y extae las celdas de INFO y SEMAFORO
 # regresa un xlsx con los resultados
@@ -129,6 +139,7 @@ def main():
                         level=logging.INFO)
 
     directorio_resultados = obtener_directorio_resultados()
+    listado_facilitadores = obtener_listado_facilitadores()
     resultados = analizar_xlsx(iteracion, directorio_resultados)
     
     # Obtener listado de facilitadores y generar reporte para cada uno
@@ -137,11 +148,16 @@ def main():
     print (f'Generando Reportes para {len(facilitadores)} facilitadores')
     log_title('ERRORES DE GENERACIÓN DE REPORTES')
     contador_de_errores = 0
+    contador_de_facilitadores_sin_datos = 0
     for facilitador in tqdm(facilitadores):
         try:
             if not isnan(facilitador):
+                datos_facilitador = listado_facilitadores.loc[listado_facilitadores['ID'] == facilitador]
+                listado_filtrado = listado_filtrado.append(datos_facilitador, ignore_index=True)
                 diagnosticos_facilitador = resultados.loc[resultados['ID_Facilitador'] == facilitador]
-                generar_reporte(diagnosticos_facilitador, directorio_resultados)
+                generar_reporte(diagnosticos_facilitador, datos_facilitador, directorio_resultados)
+                if datos_facilitador.empty:
+                    contador_de_facilitadores_sin_datos += 1
             else:
                 logging.error(f'INFORME NO GENERADO - No se pudo obtener el ID de un facilitador por estar vacío - {facilitador}')
                 contador_de_errores += 1
@@ -150,15 +166,18 @@ def main():
             logging.error(f'INFORME NO GENERADO - Numero invalido del facilitador - {facilitador} - isNAN - en archivos {archivos}')
             contador_de_errores += 1
     
+    listado_filtrado.to_excel(DIRECTORIO_ACTUAL+'/listadoFiltrado.xlsx', sheet_name='listado_filtrado')
     # Registrar INFO FINAL
     print('')
     reportes_generados = f'Se generaron exitosamente {len(facilitadores)-contador_de_errores} reportes de {len(facilitadores)} facilitadores'
     reportes_errores = f'No se generaron {contador_de_errores} reportes por errores de ID'
+    reportes_errores_datos = f'No se encontró el nombre de {contador_de_facilitadores_sin_datos} facilitadores en el listado'
     print(reportes_generados)
     print(reportes_errores)
     log_title('INFO GENERAL')
     logging.info(reportes_generados)
     logging.info(reportes_errores)
+    logging.info(reportes_errores_datos)
 
 if __name__ == "__main__":
     main()

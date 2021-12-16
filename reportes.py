@@ -150,19 +150,34 @@ class PDF(FPDF):
         # Importar hoja con Membrete
         self.image(DIRECTORIO_ACTUAL + '/IMAGENES/Fondo.jpeg', 0, 0, 210, 297)
 
-def generar_reporte(diagnostico, directorio_resultados):
+def generar_reporte(diagnostico, datos_facilitador, directorio_resultados):
     pdf = PDF()
     pdf.add_page()
     pdf.set_font('Arial', 'B', 24)
 
-    pdf.cell(50)
-    id_facilitador = diagnostico['ID_Facilitador'].iloc[0]
+    #
     # TÍTULO
-    pdf.cell(90, 3, " ", 0, 2, 'C')
-    pdf.cell(75, 10, f"Informe de Facilitador", 0, 2, 'C')
-    pdf.cell(75, 10, f"#{id_facilitador}", 0, 2, 'C')
-    pdf.cell(-30)
-    pdf.cell(90, 15, " ", 0, 2, 'C')
+    # 
+    id_facilitador = diagnostico['ID_Facilitador'].iloc[0]
+    # usar solo ID si no hay datos de facilitador
+    if datos_facilitador.empty:
+        pdf.cell(50)
+        logging.warning(f'datos_facilitador vacío para "{id_facilitador}" - "{diagnostico["Nombre_Archivo"].iloc[0]}" ')
+        pdf.cell(90, 3, " ", 0, 2, 'C')
+        pdf.cell(75, 10, f"Informe de Facilitador", 0, 2, 'C')
+        pdf.cell(75, 10, f"#{id_facilitador}", 0, 2, 'C')
+        pdf.cell(-30)
+        pdf.cell(90, 15, " ", 0, 2, 'C')
+    # Usar Nombre de Facilitador
+    else:
+        pdf.cell(50)
+        pdf.cell(90, 15, " ", 0, 2, 'C')
+        pdf.cell(75, 10, f"Informe de Facilitador", 0, 2, 'C')
+        pdf.set_font('Arial', 'B', 18)
+        pdf.cell(75, 10, f"{datos_facilitador['Facilitador'].iloc[0]}", 0, 2, 'C')
+        pdf.cell(75, 10, f"#{id_facilitador}", 0, 2, 'C')
+        pdf.cell(-30)
+        pdf.cell(90, 15, " ", 0, 2, 'C')
 
     #
     # INFO DEL FACILITADOR
@@ -202,8 +217,9 @@ def generar_reporte(diagnostico, directorio_resultados):
     pdf.cell(90, 10, " ", 0, 2, 'C')
     pdf.cell(-60)
 
-
+    #
     # ENCABEZADOS INDICADORES
+    #
     pdf.set_font('Arial', 'B', 10)
     pdf.cell(80, 8, 'Indicador', 1, 0, 'L')
     pdf.cell(25, 8, 'Rojo', 1, 0, 'C')
@@ -212,7 +228,9 @@ def generar_reporte(diagnostico, directorio_resultados):
     pdf.cell(25, 8, 'Semáforo', 1, 2, 'C')
     pdf.cell(-155)
 
+    #
     # TABLA DE DISTRIBUCIÓN DE PROMEDIOS POR INDICADOR
+    #
     pdf.set_font('Arial', '', 10)
     for _, row in promedios.iterrows():
         pdf.cell(80, 8, row["indicador"], 1, 0, 'L')
@@ -238,7 +256,9 @@ def generar_reporte(diagnostico, directorio_resultados):
 
     pdf.add_page()
     pdf.set_font('Arial', 'B', 24)
+    #
     # Título PÁGINA 2
+    #
     pdf.cell(57)
     pdf.cell(90, 7, " ", 0, 2, 'C')
     pdf.cell(60, 8, 'Análisis de Indicadores', 0, 2, 'C')
