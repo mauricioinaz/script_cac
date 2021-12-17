@@ -133,7 +133,7 @@ def main():
         print(iteracion)
 
     # Configurar archivo de errores
-    logging.basicConfig(filename=f'LOGS/errores_{time.strftime("%Y-%m-%d-%H:%M.%S")}.log', 
+    logging.basicConfig(filename=f'LOGS/errores_{time.strftime("%Y-%m-%d-%H%M%S")}.log', 
                         filemode='w', 
                         format='%(levelname)s - %(message)s', 
                         level=logging.INFO)
@@ -149,6 +149,7 @@ def main():
     log_title('ERRORES DE GENERACIÓN DE REPORTES')
     contador_de_errores = 0
     contador_de_facilitadores_sin_datos = 0
+    resultados = pd.DataFrame()
     for facilitador in tqdm(facilitadores):
         try:
             if not isnan(facilitador):
