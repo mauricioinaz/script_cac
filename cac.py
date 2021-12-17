@@ -38,7 +38,7 @@ def obtener_directorio_resultados():
 
 # Obtener el listado de facilitadores a partir de excel
 def obtener_listado_facilitadores():
-    path = DIRECTORIO_ACTUAL + '/ARCHIVOS'  '/' + NOMBRE_XLSX_LISTADO_FACILITADORES
+    path = DIRECTORIO_ACTUAL + '/ARCHIVOS' + '/' + NOMBRE_XLSX_LISTADO_FACILITADORES
     xls = pd.ExcelFile(path)
     listado_facilitadores = xls.parse(usecols=COLS_LISTADO_FACILITADORES, sheet_name=SHEET_LISTADO_FACILITADORES)
     return listado_facilitadores
@@ -133,7 +133,7 @@ def main():
         print(iteracion)
 
     # Configurar archivo de errores
-    logging.basicConfig(filename=f'LOGS/errores_{time.strftime("%Y-%m-%d-%H:%M.%S")}.log', 
+    logging.basicConfig(filename=f'LOGS/errores_{time.strftime("%Y-%m-%d-%H%M%S")}.log', 
                         filemode='w', 
                         format='%(levelname)s - %(message)s', 
                         level=logging.INFO)
