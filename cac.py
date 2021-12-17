@@ -149,8 +149,9 @@ def main():
     log_title('ERRORES DE GENERACIÓN DE REPORTES')
     contador_de_errores = 0
     contador_de_facilitadores_sin_datos = 0
-    resultados = pd.DataFrame()
+    #resultados = pd.DataFrame()
     listado_filtrado = pd.DataFrame()
+    print(resultados)
     for facilitador in tqdm(facilitadores):
         try:
             if not isnan(facilitador):
@@ -163,6 +164,8 @@ def main():
             else:
                 logging.error(f'INFORME NO GENERADO - No se pudo obtener el ID de un facilitador por estar vacío - {facilitador}')
                 contador_de_errores += 1
+        except KeyError:
+            logging.error('truena por KeyError')
         except TypeError:
             archivos = resultados.loc[resultados['ID_Facilitador'] == facilitador]["Nombre_Archivo"].unique()
             logging.error(f'INFORME NO GENERADO - Numero invalido del facilitador - {facilitador} - isNAN - en archivos {archivos}')
