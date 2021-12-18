@@ -5,3 +5,4 @@ LOGS/*
 __pycache__/
 *.log
 .venv/
+listadoFiltrado.xlsx

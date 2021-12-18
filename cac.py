@@ -162,16 +162,21 @@ def main():
                 if datos_facilitador.empty:
                     contador_de_facilitadores_sin_datos += 1
             else:
-                logging.error(f'INFORME NO GENERADO - No se pudo obtener el ID de un facilitador por estar vacío - {facilitador}')
+                archivos = resultados.loc[resultados['ID_Facilitador'] == facilitador]["Nombre_Archivo"].unique()
+                pestanias = resultados.loc[resultados['ID_Facilitador'] == facilitador]["Nombre_Pestania"].unique()
+                logging.error(f'INFORME NO GENERADO ELSE - No se pudo obtener el ID de un facilitador - {facilitador} - en archivos {archivos} en pestaña {pestanias}')
                 contador_de_errores += 1
-        except KeyError:
-            logging.error('truena por KeyError')
+        # except KeyError:
+        #     logging.error('truena por KeyError')
         except TypeError:
-            archivos = resultados.loc[resultados['ID_Facilitador'] == facilitador]["Nombre_Archivo"].unique()
-            logging.error(f'INFORME NO GENERADO - Numero invalido del facilitador - {facilitador} - isNAN - en archivos {archivos}')
+            archivos = resultados.loc[resultados['ID_Facilitador'].isnull()]["Nombre_Archivo"].unique()
+            pestanias = resultados.loc[resultados['ID_Facilitador'].isnull()]["Nombre_Pestania"].unique()
+            logging.error(f'INFORME NO GENERADO TypeError - Numero invalido del facilitador - {facilitador} - en archivos {archivos} en pestanias {pestanias}')
             contador_de_errores += 1
     
-    listado_filtrado.to_excel(DIRECTORIO_ACTUAL+'/listadoFiltrado.xlsx', sheet_name='listado_filtrado')
+    # Excel con la lista de facilitadores que SÍ se les generó un reporte
+    listado_filtrado.to_excel(DIRECTORIO_ACTUAL+'/RESULTADOS' +'/listadoDeFacilitadoresConReporte.xlsx', sheet_name='listado_filtrado')
+
     # Registrar INFO FINAL
     print('')
     reportes_generados = f'Se generaron exitosamente {len(facilitadores)-contador_de_errores} reportes de {len(facilitadores)} facilitadores'
