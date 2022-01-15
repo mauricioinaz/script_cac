@@ -62,14 +62,14 @@ def generar_pay(promedios, directorio_resultados):
     # Cerrar figuras anteriores para mejor manejo de memoria
     plt.close('all')
     # Pie chart, where the slices will be ordered and plotted counter-clockwise:
-    labels = '(-33%)', '(66%-33%)', '(+66%)'
+    labels = '(-33%)', '(33%-66%)', '(+66%)'
 
     sizes = [promedios['rojo'].mean(), promedios['amarillo'].mean(), promedios['verde'].mean()]
 
     explode = [0.1, 0.1, 0.1]
 
     #            red          yellow       green
-    colors = ['#fb0707', '#effb07', '#07fb26']
+    colors = ['#a60600', '#ffd500', '#00ba1c']
 
     _, ax1 = plt.subplots()
     ax1.pie(sizes, explode=explode, labels=labels, colors=colors, autopct='%1.1f%%',
@@ -107,9 +107,9 @@ def promedios_por_indicador(diagnostico):
             suma_preguntas = sum([row[indicador + str(n)] for n in range(preguntas_por_indicador)])
             promedio = suma_preguntas / preguntas_por_indicador
             promedios.append(promedio)
-        rojo = (len([True for pr in promedios if pr <= 0.33]) / len(promedios) ) * 100
-        amarillo = (len([True for pr in promedios if pr > 0.33 and pr <= 0.66]) / len(promedios) ) * 100
-        verde = (len([True for pr in promedios if pr > 0.66]) / len(promedios) ) * 100
+        rojo = (len([True for pr in promedios if pr < 0.33]) / len(promedios) ) * 100
+        amarillo = (len([True for pr in promedios if pr >= 0.33 and pr < 0.66]) / len(promedios) ) * 100
+        verde = (len([True for pr in promedios if pr >= 0.66]) / len(promedios) ) * 100
         semaforo = semaforo_por_indicador(rojo, amarillo, verde)
         promedios_indicador = promedios_indicador.append({
             'indicador' : indicador,
@@ -158,7 +158,7 @@ def generar_reporte(diagnostico, datos_facilitador, directorio_resultados):
     #
     # TÍTULO
     # 
-    id_facilitador = diagnostico['ID_Facilitador'].iloc[0]
+    id_facilitador = int(diagnostico['ID_Facilitador'].iloc[0])
     # usar solo ID si no hay datos de facilitador
     if datos_facilitador.empty:
         pdf.cell(50)
@@ -175,7 +175,7 @@ def generar_reporte(diagnostico, datos_facilitador, directorio_resultados):
         pdf.cell(75, 10, f"Informe de Facilitador", 0, 2, 'C')
         pdf.set_font('Arial', 'B', 18)
         pdf.cell(75, 10, f"{datos_facilitador['Facilitador'].iloc[0]}", 0, 2, 'C')
-        pdf.cell(75, 10, f"#{id_facilitador}", 0, 2, 'C')
+        pdf.cell(75, 10, f"(ID {id_facilitador})", 0, 2, 'C')
         pdf.cell(-30)
         pdf.cell(90, 15, " ", 0, 2, 'C')
 
@@ -267,9 +267,9 @@ def generar_reporte(diagnostico, datos_facilitador, directorio_resultados):
     pdf.cell(-57)
 
     TITULOS_RANGOS = [
-        'Más fuertes',    # 0
+        'Fuertes',    # 0
         'Buenos',         # 1
-        'de Atención',    # 2
+        'De atención',    # 2
         'Bajos',          # 3
         'Graves',         # 4
         ]
@@ -278,7 +278,7 @@ def generar_reporte(diagnostico, datos_facilitador, directorio_resultados):
         pdf.set_font('Arial', 'B', 10)
         pdf.cell(70, 10, rango_texto, 1, 0, 'L')
         en_rango = promedios.loc[promedios['rango'] == rango]
-        indicadores_en_rango = ', '.join(en_rango['indicador'].tolist())
+        indicadores_en_rango = '\n'.join(en_rango['indicador'].tolist())
         pdf.set_font('Arial', '', 10)
         pdf.multi_cell(100, 10, indicadores_en_rango, 1, 2, 'C')
         # pdf.cell(-0)

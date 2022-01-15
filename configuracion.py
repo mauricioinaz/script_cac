@@ -29,25 +29,25 @@ COLORES = {
 # a anlizar de la COL_SEMAFORO
 ESTRUCTURA_SEMAFORO = {
 #   'Nombre_de_la_Seccion': [InicioRenglon, #DeRenglones]
-    'Identidad_Valores_Compartidos': [17, 3],
-    'Consecucion_Eficiente_Objetivos': [26, 2],
-    'Integracion_Resolucion_Conflictos': [34, 6],
-    'Participacion_Relaciones_Democraticas': [46, 3],
-    'Liderazgo_Positivo': [56, 3],
-    'Capacidad_Gestion_Art_Autonomia': [66, 3],
-    'Construccion_Tejido_Social': [75, 2],
-    'Soberania_Alimentaria': [88, 4],
-    'Trabajo_Equipo_Emprendimiento_Coop': [100, 4],
-    'Cultura_Ahorro_Finanzas_Sociales': [112, 4],
-    'Equidad_Genero': [122, 4],
-    'Apr_Labores_Culturales': [136, 3],
-    'Habitos_Consumo_Descarte': [144, 3],
-    'Acciones_Saberes_Cuidado_Restauracion': [152, 3],
-    'Salud_Comunitaria': [161, 3]
+    'Identidad y valores compartidos': [17, 3],
+    'Consecución eficiente de los objetivos': [26, 2],
+    'Integración y resolución de conflictos': [34, 6],
+    'Participación y relaciones democráticas': [46, 3],
+    'Liderazgo positivo': [56, 3],
+    'Capacidad de gestión, articulación y autonomía': [66, 3],
+    'Construcción del tejido social': [75, 2],
+    'Soberanía alimentaria': [88, 4],
+    'Trabajo en equipo y emprendimiento cooperativo': [100, 4],
+    'Cultura del ahorro y finanzas sociales': [112, 4],
+    'Equidad de género': [122, 4],
+    'Apropiación de labores culturales de cultivo': [136, 3],
+    'Hábitos de consumo y descarte': [144, 3],
+    'Acciones de cuidado al medio ambiente': [152, 3],
+    'Salud comunitaria': [161, 3]
 }
 
 # Nombres de carpetas de las iteraciones
-ITERACIONES = ['INICIAL', 'INTERMEDIO', 'FINAL']
+ITERACIONES = ['INICIAL_PRUEBA', 'INTERMEDIO', 'FINAL']
 
 # Nombres de las pestañas que se extraerán
 # CAC1, CAC2, CAC3...
