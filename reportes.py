@@ -12,17 +12,34 @@ CANTIDAD_RENGLONES = 1
 RANGOS = [.75, .66, .33, .25, 0]
 
 # Función en qué rango está la mayoría de los promedios
-def ubicar_rango(promedios):
+def ubicar_rango(promedios, indicador):
     mayor = 1
     indicadores_por_rango = []
     total = len(promedios)
+
+    if indicador == 'Soberanía alimentaria':
+        print('indicador', indicador)
+        print('promedios', promedios)
+        print('total', total)
+
     # Asignar rangos 
     #  A   	  B 	  C       D	     E
     #  0      1       2       3      4 
     # >=75	66>75	33>66	25>33	<=25
     for menor in RANGOS:
-        indicadores_por_rango.append(len([p for p in promedios if menor < p <= mayor]))
+        lista_de_cada_rango = [p for p in promedios if menor < p <= mayor]
+        if indicador == 'Soberanía alimentaria':
+            print(f'rango entre {menor} y {mayor}')
+            print(lista_de_cada_rango)
+        indicadores_por_rango.append(len(lista_de_cada_rango))
         mayor = menor
+
+    if indicador == 'Soberanía alimentaria':
+        print('indicadores_por_rango', indicadores_por_rango)
+
+    if indicador == 'Soberanía alimentaria':
+        print('indicadores_por_rango[3] + indicadores_por_rango[4]', indicadores_por_rango[3] + indicadores_por_rango[4])
+        print('total*0.33', total*0.33)
 
     # Si no hay info es un Else?
     if sum(indicadores_por_rango) == 0:
@@ -117,7 +134,7 @@ def promedios_por_indicador(diagnostico):
             'amarillo' : amarillo,
             'verde' : verde,
             'semaforo' : semaforo,
-            'rango': ubicar_rango(promedios),
+            'rango': ubicar_rango(promedios, indicador),
             # 'promedios': promedios
         }, ignore_index=True)
         # print(promedios)
