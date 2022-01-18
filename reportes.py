@@ -26,20 +26,40 @@ def ubicar_rango(promedios, indicador):
     #  A   	  B 	  C       D	     E
     #  0      1       2       3      4 
     # >=75	66>75	33>66	25>33	<=25
-    for menor in RANGOS:
-        lista_de_cada_rango = [p for p in promedios if menor < p <= mayor]
-        if indicador == 'Soberanía alimentaria':
-            print(f'rango entre {menor} y {mayor}')
-            print(lista_de_cada_rango)
-        indicadores_por_rango.append(len(lista_de_cada_rango))
-        mayor = menor
+    # for menor in RANGOS:
+    #     lista_de_cada_rango = [p for p in promedios if menor < p <= mayor]
+    #     if indicador == 'Soberanía alimentaria':
+    #         print(f'rango entre {menor} y {mayor}')
+    #         print(lista_de_cada_rango)
+    #     indicadores_por_rango.append(len(lista_de_cada_rango))
+    #     mayor = menor
+
+    A = []
+    B = []
+    C = []
+    D = []
+    E = []
+    for p in promedios:
+        if p >= 0.75:
+            A.append(p)
+        elif p >= 0.66 and p < 0.75:
+            B.append(p)
+        elif p >= 0.33 and p < 0.66:
+            C.append(p)
+        elif p >= 0.25 and p < 0.33:
+            D.append(p)
+        else:
+            E.append(p) 
+
+    indicadores_por_rango = [len(A), len(B), len(C), len(D), len(E)]
 
     if indicador == 'Soberanía alimentaria':
+        print('A', A)
+        print('B', B)
+        print('C', C)
+        print('D', D)
+        print('E', E)
         print('indicadores_por_rango', indicadores_por_rango)
-
-    if indicador == 'Soberanía alimentaria':
-        print('indicadores_por_rango[3] + indicadores_por_rango[4]', indicadores_por_rango[3] + indicadores_por_rango[4])
-        print('total*0.33', total*0.33)
 
     # Si no hay info es un Else?
     if sum(indicadores_por_rango) == 0:
