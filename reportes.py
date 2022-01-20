@@ -46,7 +46,7 @@ def ubicar_rango(promedios, indicador):
             B.append(p)
         elif p >= 0.33 and p < 0.66:
             C.append(p)
-        elif p >= 0.25 and p < 0.33:
+        elif p > 0.25 and p < 0.33:
             D.append(p)
         else:
             E.append(p) 
@@ -228,6 +228,9 @@ def generar_reporte(diagnostico, datos_facilitador, directorio_resultados):
     # # Año de aplicación:
     pdf.cell(50, 10, 'Año de aplicación:', 1, 0, 'R')
     fecha_excel = diagnostico['Fecha_Aplicacion'].iloc[0]
+    # convertir fechas en float a int
+    if type(fecha_excel) is float:
+        fecha_excel = int(fecha_excel)
     # convertir formato fecha excel a texto
     if type(fecha_excel) is int:
         fecha = xlrd.xldate_as_datetime(fecha_excel, 0)
@@ -235,7 +238,7 @@ def generar_reporte(diagnostico, datos_facilitador, directorio_resultados):
     else:
         anio = 'fecha no disponible'
         f'{fecha_excel} '
-        logging.warning(f'Fecha " {fecha_excel}" no válida - en pestaña "{diagnostico["Nombre_Pestania"].iloc[0]}" "{diagnostico["Nombre_Archivo"].iloc[0]}" ')
+        logging.warning(f'Fecha " {fecha_excel} - type{type(fecha_excel)}" no válida - en pestaña "{diagnostico["Nombre_Pestania"].iloc[0]}" "{diagnostico["Nombre_Archivo"].iloc[0]}" ')
         
     pdf.cell(70, 10, anio, 1, 2, 'C')
     pdf.cell(-50)
