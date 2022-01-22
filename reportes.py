@@ -1,3 +1,4 @@
+from cmath import isnan
 from fpdf import FPDF
 import pandas as pd
 import xlrd
@@ -17,10 +18,10 @@ def ubicar_rango(promedios, indicador):
     indicadores_por_rango = []
     total = len(promedios)
 
-    if indicador == 'Soberanía alimentaria':
-        print('indicador', indicador)
-        print('promedios', promedios)
-        print('total', total)
+ #   if indicador == 'Soberanía alimentaria':
+ #       print('indicador', indicador)
+ #       print('promedios', promedios)
+ #       print('total', total)
 
     # Asignar rangos 
     #  A   	  B 	  C       D	     E
@@ -53,13 +54,13 @@ def ubicar_rango(promedios, indicador):
 
     indicadores_por_rango = [len(A), len(B), len(C), len(D), len(E)]
 
-    if indicador == 'Soberanía alimentaria':
-        print('A', A)
-        print('B', B)
-        print('C', C)
-        print('D', D)
-        print('E', E)
-        print('indicadores_por_rango', indicadores_por_rango)
+#    if indicador == 'Soberanía alimentaria':
+#        print('A', A)
+#        print('B', B)
+#        print('C', C)
+#        print('D', D)
+#        print('E', E)
+#        print('indicadores_por_rango', indicadores_por_rango)
 
     # Si no hay info es un Else?
     if sum(indicadores_por_rango) == 0:
@@ -128,9 +129,9 @@ def generar_pay(promedios, directorio_resultados):
 # Amarillo: 
 #   else
 def semaforo_por_indicador(rojo, amarillo, verde):
-    if verde < 25 and amarillo < 33 and rojo > 40:
+    if verde < 33 and amarillo < 66 and rojo > 33:
         return 'rojo'
-    elif rojo < 25 and amarillo < 40 and verde > 40:
+    elif rojo < 33 and amarillo < 66 and verde > 33:
         return 'verde'
     else:
         return 'amarillo'
@@ -171,13 +172,13 @@ def promedios_por_indicador(diagnostico):
 #   los indicadores verdes mayores que 40% 
 # Amarillo: else
 def gradiente_social(semaforos):
-    if (semaforos.count('verde') < len(semaforos)*0.25 and 
-            semaforos.count('amarillo') < len(semaforos)*0.33 and 
-            semaforos.count('rojo') > len(semaforos)*0.4):
+    if (semaforos.count('verde') < len(semaforos)*0.33 and 
+            semaforos.count('amarillo') < len(semaforos)*0.66 and 
+            semaforos.count('rojo') > len(semaforos)*0.33):
         return 'rojo'
-    elif (semaforos.count('rojo') < len(semaforos)*0.25 and
-            semaforos.count('amarillo') < len(semaforos)*0.4 and
-            semaforos.count('verde') > len(semaforos)*0.4):
+    elif (semaforos.count('rojo') < len(semaforos)*0.33 and
+            semaforos.count('amarillo') < len(semaforos)*0.66 and
+            semaforos.count('verde') > len(semaforos)*0.33):
         return 'verde'
     else:
         return 'amarillo'
@@ -227,6 +228,7 @@ def generar_reporte(diagnostico, datos_facilitador, directorio_resultados):
     pdf.cell(-50)
     # # Año de aplicación:
     pdf.cell(50, 10, 'Año de aplicación:', 1, 0, 'R')
+    diagnostico['Fecha_Aplicacion'] = diagnostico['Fecha_Aplicacion'].fillna(44466)
     fecha_excel = diagnostico['Fecha_Aplicacion'].iloc[0]
     # convertir fechas en float a int
     if type(fecha_excel) is float:
