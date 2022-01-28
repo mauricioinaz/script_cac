@@ -47,7 +47,7 @@ ESTRUCTURA_SEMAFORO = {
 }
 
 # Nombres de carpetas de las iteraciones
-ITERACIONES = ['INICIAL_PRUEBA', 'INTERMEDIO', 'FINAL']
+ITERACIONES = ['INICIAL', 'INTERMEDIO', 'FINAL']
 
 # Nombres de las pestañas que se extraerán
 # CAC1, CAC2, CAC3...

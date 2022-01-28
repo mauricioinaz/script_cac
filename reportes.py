@@ -66,31 +66,31 @@ def ubicar_rango(promedios, indicador):
     if sum(indicadores_por_rango) == 0:
         return 2
     # 0 Indicadores más fuertes:	
-    #   A+B>33% y A>16.5% y D+E<33% y E<16.5% y C<33%
+    #   A+B>33% y A>16.5% y D+E<33% y E<16.5% y C<66%
     if indicadores_por_rango[0] + indicadores_por_rango[1] > total*0.33 and \
             indicadores_por_rango[0] > total*0.165 and \
             indicadores_por_rango[3] + indicadores_por_rango[4] < total*0.33 and \
             indicadores_por_rango[4] < total*0.165 and \
-            indicadores_por_rango[2] < total*0.33:
+            indicadores_por_rango[2] < total*0.66:
         return 0
     # 1 Indicadores buenos:	
     #   A+B>33% y D+E<33% y C<33%
     if indicadores_por_rango[0] + indicadores_por_rango[1] > total*0.33 and \
             indicadores_por_rango[3] + indicadores_por_rango[4] < total*0.33 and \
-            indicadores_por_rango[2] < total*0.33:
+            indicadores_por_rango[2] < total*0.66:
         return 1
     # 3 Indicadores bajos:
     #   D+E>33% y A+B<33% y C<33%
     if indicadores_por_rango[3] + indicadores_por_rango[4] > total*0.33 and \
             indicadores_por_rango[0] + indicadores_por_rango[1] < total*0.33 and \
-            indicadores_por_rango[2] < total*0.33:
+            indicadores_por_rango[2] < total*0.66:
         return 3
     # 4 Indicadores graves:
     #   D+E>33% y E>16.5% y A+B<33% y C<33%
     if indicadores_por_rango[3] + indicadores_por_rango[4] > total*0.33 and \
             indicadores_por_rango[4] > total*0.165 and \
             indicadores_por_rango[0] + indicadores_por_rango[1] < total*0.33 and \
-            indicadores_por_rango[2] < total*0.33:
+            indicadores_por_rango[2] < total*0.66:
         return 4
     # 2 Indicadores de atención:	
     #   Else
@@ -136,6 +136,14 @@ def semaforo_por_indicador(rojo, amarillo, verde):
     else:
         return 'amarillo'
 
+#def mayor(rojo, amarillo, verde):
+#    if max (rojo, amarillo, verde) == rojo:
+#        return 'rojo'
+#    elif max (rojo, amarillo, verde) == verde:
+#        return 'verde'
+#    else:
+#        return 'amarillo'
+
 def promedios_por_indicador(diagnostico):
     promedios_indicador = pd.DataFrame()
     for indicador, info_seccion in ESTRUCTURA_SEMAFORO.items():
@@ -148,6 +156,7 @@ def promedios_por_indicador(diagnostico):
         rojo = (len([True for pr in promedios if pr < 0.33]) / len(promedios) ) * 100
         amarillo = (len([True for pr in promedios if pr >= 0.33 and pr < 0.66]) / len(promedios) ) * 100
         verde = (len([True for pr in promedios if pr >= 0.66]) / len(promedios) ) * 100
+        mayor = max(rojo,amarillo,verde)
         semaforo = semaforo_por_indicador(rojo, amarillo, verde)
         promedios_indicador = promedios_indicador.append({
             'indicador' : indicador,
@@ -156,6 +165,7 @@ def promedios_por_indicador(diagnostico):
             'verde' : verde,
             'semaforo' : semaforo,
             'rango': ubicar_rango(promedios, indicador),
+            'mayor' : mayor
             # 'promedios': promedios
         }, ignore_index=True)
         # print(promedios)
@@ -238,7 +248,7 @@ def generar_reporte(diagnostico, datos_facilitador, directorio_resultados):
         fecha = xlrd.xldate_as_datetime(fecha_excel, 0)
         anio = str(fecha.year)
     else:
-        anio = 'fecha no disponible'
+        anio = '2021'
         f'{fecha_excel} '
         logging.warning(f'Fecha " {fecha_excel} - type{type(fecha_excel)}" no válida - en pestaña "{diagnostico["Nombre_Pestania"].iloc[0]}" "{diagnostico["Nombre_Archivo"].iloc[0]}" ')
         
@@ -248,16 +258,17 @@ def generar_reporte(diagnostico, datos_facilitador, directorio_resultados):
     pdf.cell(50, 10, 'Iteración:', 1, 0, 'R')
     iteracion = diagnostico['Iteracion'].iloc[0]
     pdf.cell(70, 10, iteracion, 1, 2, 'C')
-    pdf.cell(-50)
+    pdf.cell(90, 10, " ", 0, 2, 'C')
+    pdf.cell(-60)
 
     promedios = promedios_por_indicador(diagnostico)
     color_gradiente = gradiente_social(promedios['semaforo'].to_list())
 
-    pdf.cell(50, 10, 'Gradiente Social:', 1, 0, 'R')
-    pdf.set_fill_color(*COLORES[color_gradiente])
-    pdf.cell(70, 10, ' ', 1, 2, 'C', fill=True)
-    pdf.cell(90, 10, " ", 0, 2, 'C')
-    pdf.cell(-60)
+#    pdf.cell(50, 10, 'Gradiente Social:', 1, 0, 'R')
+#    pdf.set_fill_color(*COLORES[color_gradiente])
+#    pdf.cell(70, 10, ' ', 1, 2, 'C', fill=True)
+#    pdf.cell(90, 10, " ", 0, 2, 'C')
+#    pdf.cell(-60)
 
     #
     # ENCABEZADOS INDICADORES
@@ -266,9 +277,9 @@ def generar_reporte(diagnostico, datos_facilitador, directorio_resultados):
     pdf.cell(80, 8, 'Indicador', 1, 0, 'L')
     pdf.cell(25, 8, 'Rojo', 1, 0, 'C')
     pdf.cell(25, 8, 'Amarillo', 1, 0, 'C')
-    pdf.cell(25, 8, 'Verde', 1, 0, 'C')
-    pdf.cell(25, 8, 'Semáforo', 1, 2, 'C')
-    pdf.cell(-155)
+    pdf.cell(25, 8, 'Verde', 1, 2, 'C')
+  # pdf.cell(25, 8, 'Semáforo', 1, 2, 'C')
+    pdf.cell(-130)
 
     #
     # TABLA DE DISTRIBUCIÓN DE PROMEDIOS POR INDICADOR
@@ -276,12 +287,23 @@ def generar_reporte(diagnostico, datos_facilitador, directorio_resultados):
     pdf.set_font('Arial', '', 10)
     for _, row in promedios.iterrows():
         pdf.cell(80, 8, row["indicador"], 1, 0, 'L')
-        pdf.cell(25, 8, f'{row["rojo"]}%', 1, 0, 'C')
-        pdf.cell(25, 8, f'{row["amarillo"]}%', 1, 0, 'C')
-        pdf.cell(25, 8, f'{row["verde"]}%', 1, 0, 'C')
-        pdf.set_fill_color(*COLORES[row["semaforo"]])
-        pdf.cell(25, 8, ' ', 1, 2, 'C', fill=True)
-        pdf.cell(-155)
+        if row["rojo"] == row["mayor"]:
+            pdf.set_fill_color(166, 6, 0)
+            pdf.cell(25, 8, f'{row["rojo"]}%', 1, 0, 'C', fill=True)
+        else:
+            pdf.cell(25, 8, f'{row["rojo"]}%', 1, 0, 'C')
+        if row["amarillo"] == row["mayor"]:
+            pdf.set_fill_color(255, 213, 0)
+            pdf.cell(25, 8, f'{row["amarillo"]}%', 1, 0, 'C', fill=True)
+        else:
+            pdf.cell(25, 8, f'{row["amarillo"]}%', 1, 0, 'C')
+        if row["verde"] == row["mayor"]:
+            pdf.set_fill_color(0, 186, 28)
+            pdf.cell(25, 8, f'{row["verde"]}%', 1, 2, 'C', fill=True)
+        else:
+            pdf.cell(25, 8, f'{row["verde"]}%', 1, 2, 'C')
+        #pdf.cell(25, 8, ' ', 1, 2, 'C', fill=True)||
+        pdf.cell(-130)
 
     pdf.add_page()
     pdf.set_font('Arial', 'B', 24)
