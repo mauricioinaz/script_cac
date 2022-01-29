@@ -66,31 +66,26 @@ def ubicar_rango(promedios, indicador):
     if sum(indicadores_por_rango) == 0:
         return 2
     # 0 Indicadores más fuertes:	
-    #   A+B>33% y A>16.5% y D+E<33% y E<16.5% y C<66%
-    if indicadores_por_rango[0] + indicadores_por_rango[1] > total*0.33 and \
-            indicadores_por_rango[0] > total*0.165 and \
-            indicadores_por_rango[3] + indicadores_por_rango[4] < total*0.33 and \
-            indicadores_por_rango[4] < total*0.165 and \
-            indicadores_por_rango[2] < total*0.66:
+    #   A+B>=C y A>16.5% y D+E<=33%
+    if indicadores_por_rango[0] + indicadores_por_rango[1] >= indicadores_por_rango[2] and \
+            indicadores_por_rango[0] >= total*0.25 and \
+            indicadores_por_rango[3] + indicadores_por_rango[4] <= total*0.33:
         return 0
     # 1 Indicadores buenos:	
-    #   A+B>33% y D+E<33% y C<33%
-    if indicadores_por_rango[0] + indicadores_por_rango[1] > total*0.33 and \
-            indicadores_por_rango[3] + indicadores_por_rango[4] < total*0.33 and \
-            indicadores_por_rango[2] < total*0.66:
+    #   A+B>=C y D+E<=33%
+    if indicadores_por_rango[0] + indicadores_por_rango[1] >= indicadores_por_rango[2] and \
+            indicadores_por_rango[3] + indicadores_por_rango[4] <= total*0.33:
         return 1
     # 3 Indicadores bajos:
-    #   D+E>33% y A+B<33% y C<33%
-    if indicadores_por_rango[3] + indicadores_por_rango[4] > total*0.33 and \
-            indicadores_por_rango[0] + indicadores_por_rango[1] < total*0.33 and \
-            indicadores_por_rango[2] < total*0.66:
+    #   D+E>=C y A+B<=33%
+    if indicadores_por_rango[3] + indicadores_por_rango[4] >= indicadores_por_rango[2] and \
+            indicadores_por_rango[0] + indicadores_por_rango[1] <= total*0.33:
         return 3
     # 4 Indicadores graves:
-    #   D+E>33% y E>16.5% y A+B<33% y C<33%
-    if indicadores_por_rango[3] + indicadores_por_rango[4] > total*0.33 and \
-            indicadores_por_rango[4] > total*0.165 and \
-            indicadores_por_rango[0] + indicadores_por_rango[1] < total*0.33 and \
-            indicadores_por_rango[2] < total*0.66:
+    #   D+E>=C y E>16.5% y A+B<=33%
+    if indicadores_por_rango[3] + indicadores_por_rango[4] >= indicadores_por_rango[2] and \
+            indicadores_por_rango[4] >= total*0.25 and \
+            indicadores_por_rango[0] + indicadores_por_rango[1] <= total*0.33:
         return 4
     # 2 Indicadores de atención:	
     #   Else
@@ -129,9 +124,9 @@ def generar_pay(promedios, directorio_resultados):
 # Amarillo: 
 #   else
 def semaforo_por_indicador(rojo, amarillo, verde):
-    if verde < 33 and amarillo < 66 and rojo > 33:
+    if verde <= 33 and rojo >= amarillo:
         return 'rojo'
-    elif rojo < 33 and amarillo < 66 and verde > 33:
+    elif rojo <= 33 and verde >= amarillo:
         return 'verde'
     else:
         return 'amarillo'
@@ -278,7 +273,7 @@ def generar_reporte(diagnostico, datos_facilitador, directorio_resultados):
     pdf.cell(25, 8, 'Rojo', 1, 0, 'C')
     pdf.cell(25, 8, 'Amarillo', 1, 0, 'C')
     pdf.cell(25, 8, 'Verde', 1, 2, 'C')
-  # pdf.cell(25, 8, 'Semáforo', 1, 2, 'C')
+    #pdf.cell(25, 8, 'Semáforo', 1, 2, 'C')
     pdf.cell(-130)
 
     #
@@ -302,7 +297,8 @@ def generar_reporte(diagnostico, datos_facilitador, directorio_resultados):
             pdf.cell(25, 8, f'{row["verde"]}%', 1, 2, 'C', fill=True)
         else:
             pdf.cell(25, 8, f'{row["verde"]}%', 1, 2, 'C')
-        #pdf.cell(25, 8, ' ', 1, 2, 'C', fill=True)||
+        #pdf.set_fill_color(*COLORES[row["semaforo"]])
+        #pdf.cell(25, 8, ' ', 1, 2, 'C', fill=True)
         pdf.cell(-130)
 
     pdf.add_page()
